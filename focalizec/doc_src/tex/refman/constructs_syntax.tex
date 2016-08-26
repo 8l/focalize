@@ -1,0 +1,2098 @@
+% $Id: constructs_syntax.tex,v 1.54 2012-10-30 12:27:54 pessaux Exp $
+
+
+\section{Language constructs and syntax}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Types}
+Before dealing with expressions and in general, constructs that allow to
+compute, let us first examine data-type definitions since, to emit its
+result, an algorithm must manipulate data that are more or less specific to
+the algorithm. Hence we must know about type definitions to define data that
+have a convenient shape and carry the necessary information to model the
+problem at hand.
+
+Type definitions allow to build new types or more complex types by
+combining previously existing types. They always appear as
+toplevel-definitions, in other words, outside species and
+collections. Hence a type definition is visible in the whole
+compilation unit (and also in other units by using the {\tt open}
+directive or by qualifying the type name as described in section
+\ref{qualified-name}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Type constructors}
+A {\bf type constructor} is, roughly speaking, a type name.
+
+{\focal} provides the basic built-in
+types (constructors):
+\begin{compact-itemize}
+  \item {\tt int} for signed machine integers,
+  \item {\tt bool} for boolean values ({\tt true} and {\tt false} that
+    are hardwired in the syntax or {\tt True} and {\tt False} that are
+    defined in ``basics.fcl''),
+  \item {\tt float} for floating point numbers,
+  \item {\tt unit} for the trivial type whose only value is {\tt ()},
+  \item {\tt char} for characters literals,
+  \item {\tt string} for strings literals.
+\end{compact-itemize}
+Note that these types are translated to {\ocaml} types; for example
+{\tt int} on 32-bits architecture encode values between $-2^{30}$
+and $+2^{30}-1$.
+
+New type constructors are introduced by
+{\bf type definitions}.
+Types constructors can be parameterised by  {\bf type expressions}
+separated by commas and between parentheses.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Type expressions}
+\index{type!expression}
+\index{expression!type}
+Type definitions require {\bf type expressions} to build more complex
+data-types.
+\vspace{0.2cm}
+\begin{syn}
+\nt{type-exp} \is
+     \nt{lident}
+\alt \nt{uident}
+\alt \tok{Self}
+\alt \tok{'}\hspace{-0.15cm}\nt{lident}
+\alt \nt{lident} \tok{(} \repsep{\nt{type-exp}}{\tok{,}} \tok{)}
+\alt \nt{type-exp} \tok{->} \nt{type-exp}
+\alt \tok{(} \repsep{\nt{type-exp}}{\tok{*}} \tok{)}
+\alt \tok{(} \nt{type-exp} \tok{)}
+\end{syn}
+%\begin{syntax}
+%\syntaxclass{Type expressions:}
+%\tau & ::= & lowercase\ ident  & Type constructor \\
+%     & \mid & uppercase\ ident & Species representation \\
+%     & \mid & \terminal{'}lowercase\ ident & Type variable \\
+%     & \mid & uppercase\ ident
+%              \ \terminal{(}\tau\ \{\terminal{,}\ \tau\}+\terminal{)} &
+%               Parameterised type constructor \\
+%     & \mid & \tau\ \terminal{\rightarrow}\ \tau & Functional type \\
+%     & \mid & \terminal{(}\tau\ \terminal{*}\ \tau
+%              \ \{\terminal{*}\ \tau\}+\terminal{)} & Tuple type \\
+%     & \mid & \terminal {Self} & Current species representation \\
+%     & \mid & \terminal{(}\tau\terminal{)} & Parenthesised type expression
+%\end{syntax}
+\vspace{0.2cm}
+
+A type expression can be a type constructor.
+
+A type expression can denote the representation of a species or a
+collection by using their name, thus a capitalized name. The special
+case of {\tt Self} denotes the representation of the current
+species. Hence, obviously {\tt Self} is only bound in the scope of a
+species.
+
+Type expressions representing function types are written using the
+arrow notation ({\tt ->}) in which the type of the argument of the
+function is the left type expression and its return type is the right
+one. As usual in functional languages, a function with several (say
+$n$) arguments is considered as a function with {\bf 1} argument
+returning a function with $n-1$ arguments. Hence,
+{\tt int -> int -> bool} is the type of a function taking 2 integers
+and returning a boolean.
+
+\index{tuple}
+{\focal} provides native tuples (generalisation of pairs). The type of
+a tuple is the type of each of its components separated by a *
+character and surrounded by parentheses. Hence,
+{\tt (int * bool * string) } is the type of triplets whose first
+component is an integer, second component is a boolean and third
+component is a string, e.g. {\tt (-3, true, "test")}.
+
+Finally, type expressions can be written between parentheses without
+changing their semantics.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Type definitions}
+\index{type!definition}
+\label{type-definition}
+A type {\bf definition} introduces  a new type
+ constructor (the name of the type), which becomes available to build
+new type expressions. Hence, defining a type is the
+way to give a name to a new type structure. {\focal} proposes 3 kinds
+of type definitions: aliases, sum types and record types.
+
+\vspace{0.5cm}\noindent {\bf Aliases}
+
+\index{type!definition!alias}
+
+\bigskip
+
+Aliases provide a way to create type abbreviations. It is not handy to
+manipulate large {\bf type expressions} like for instance, a tuple of
+5 components: {\tt (int * int * int * int * int)}. Moreover, several
+kind of information can be represented by such a
+tuple. For instance, a tuple with x, y, z (3D-coordinates), temperature and
+pressure has the same type as a tuple with year, month, day, hours, minutes. In
+these two cases, the manipulated type expression is the same and
+the two uses cannot be easily differentiated. Type aliases allows to
+give a name to a
+(complex) type expression, for sake of readability or to shorten the
+code. Example:
+
+{\scriptsize
+\begin{lstlisting}
+type experiment_conditions = alias (int * int * int * int * int) ;;
+type date = alias (int * int * int * int * int) ;;
+\end{lstlisting}}
+
+\vspace{0.2cm}
+\begin{syn}
+\nt{alias-type-def} \is \tok{type} \nt{ident} \tok{=~alias} \nt{type-exp}
+\end{syn}
+% \begin{syntax}
+% \syntaxclass{Alias type definitions:}
+% alias\_type\_def & ::= & \terminal{type}\ ident\ \terminal{=}
+%    \ \terminal{alias}\ \tau
+% \end{syntax}
+\vspace{0.2cm}
+
+In the remaining of the development, the type names
+{\tt  experiment\_conditions} and {\tt date} will be known to be
+tuples of 5 integers and will be compatible with any other type being
+also a tuple of 5 integers. This especially means that a {\em type alias
+does not create a really ``new'' type, it only gives a name to a type
+expression and this name is type-compatible with any occurrence of the
+type expression it is bound to}. Obviously, it is possible to use
+aliases with and in any type expression or type definition.
+
+%  For
+% instance:
+% Je ne vois pas ce que cet exemple illustre. Th.
+% {\scriptsize
+% \begin{lstlisting}
+% type t1 =
+%  | A
+%  | B
+% ;;
+
+% type t2 = (t1 * bool) ;
+
+% type t3 ('a) =
+%  | C (t2)
+%  | D ('a)
+% ;;
+
+% type t4 = t3 (int * bool) ;;
+% \end{lstlisting}
+% }
+
+
+
+
+\vspace{0.5cm}\noindent{\bf Sum types}
+\index{type!definition!sum}
+\index{sum type}
+
+Sum types provide the way to create new {\bf values} that
+ belong to the same {\bf type}. Like {\tt 1} or {\tt 42} are
+{\bf values} of {\bf type} {\tt int}, one may want to have {\tt Red},
+{\tt Blue} and {\tt Green} as the {\bf only} values of a new type
+called  {\tt color}. The {\bf only}  means that the created type {\tt color}
+is inhabited only by these 3 values. To define
+such a type, we itemize its value names (that are always capitalized
+identifiers) by  preceeding them by a \terminal{\vertical} character :
+
+{\scriptsize
+\begin{lstlisting}
+type color =
+  | Red
+  | Blue
+  | Green
+;;
+\end{lstlisting}}
+
+Note that the first \terminal{\vertical} character is required: it is not a
+separator. This especially means that when writing a sum type
+definition on a single line, the first \terminal{\vertical} must be written:
+
+{\scriptsize
+\begin{lstlisting}
+type color = | Red | Blue | Green ;;
+\end{lstlisting}}
+
+\index{value constructor}
+{\bf Values} of a sum type  are built from the
+{\bf value constructors}, i.e. from the names enumerated in the
+definition (that must not be confused with the {\bf type constructor}
+which is the name of the type. For, instance,
+{\tt Red} is a {\bf value} of the type constructor {\tt color}.
+
+
+Value constructors of sum
+types can be {\bf parameterised} by a type expressions, corresponding
+values being obtained by applying the value constructor to values of
+the parameters types. For instance, let's define the type of playing
+cards as king, queen, jack and simply numbered cards:
+
+{\scriptsize
+\begin{lstlisting}
+type card =
+  | King
+  | Queen
+  | Jack
+  | Numbered (int)
+;;
+\end{lstlisting}}
+
+Hence, the {\tt Numbered} constructor ``carries'' the integer value
+written on the card. Some values of type {\tt card} are: {\tt King},
+{\tt (Numbered 4)}, {\tt (Numbered 42)}. The {\tt Numbered}
+constructor has {\bf parameter}.
+
+\index{tuple!as sum type value constructor arg}
+\medskip
+An important attention must be taken for constructors having
+``several'' arguments. {\focal} provides 2 different
+(``type-incompatible'') ways to make a value constructor carrying
+several values.
+\begin{compact-itemize}
+\item Either the constructor has {\bf 1} argument that is a tuple,
+  i.e. a type expression involving the {\tt *} constructor.
+
+The corresponding type definition for such a type would be:
+
+{\scriptsize
+\begin{lstlisting}
+type t =
+  | Cstr (bool * int * string)
+;;
+\end{lstlisting}}
+
+\item Or the constructor has {\bf several} arguments, i.e. several
+  type expressions separated by a comma.
+
+{\scriptsize
+\begin{lstlisting}
+type t2 =
+  | Cstr2 (bool, int, string)
+;;
+\end{lstlisting}}
+
+\noindent means that the constructor {\tt Cstr2} has {\bf 3 arguments}.
+\end{compact-itemize}
+
+\medskip
+This especially important since when matching on such value
+constructors, confusing the argument{\bf s} of {\tt Cstr2} with
+one and unique tuple with 3 components will result in a type error.
+Below are shown several pieces of source code with valid/invalid mixes
+between these concepts.
+
+{\scriptsize
+\begin{lstlisting}
+type mytuple = alias (bool * int * string) ;;
+
+type t =
+  | Cstr (bool * int * string)
+;;
+
+let fct_t1 (x) =
+  match x with
+   | Cstr (a, b, c) -> ()
+;;
+\end{lstlisting}}
+
+\noindent leads to:
+
+\begin{verbatim}
+Error: Types
+(basics#bool * basics#int * basics#string),  '_a,  '_b and
+(basics#bool * basics#int * basics#string) are not compatible.
+\end{verbatim}
+\noindent because {\tt Cstr} expects 1 tuple argument and not 3
+arguments.
+
+\medskip
+{\scriptsize
+\begin{lstlisting}
+let fct_t1 (x) =
+  match x with
+   | Cstr ((a, b, c)) -> ()
+;;
+\end{lstlisting}}
+
+\noindent is accepted since it makes explicit that the pattern matches
+the unique argument of {\tt Cstr} that is a tuple and by the way
+de-structurates this tuple.
+
+\medskip
+{\scriptsize
+\begin{lstlisting}
+let fct_t2 (x) in mytuple =
+  match x with
+   | Cstr (x) -> x
+;;
+\end{lstlisting}}
+
+\noindent is accepted since the type {\tt mytuple} aliases a 3
+components tuples and {\tt Cstr} is really parametrised by 1 argument
+that is a 3 components tuple.
+
+{\scriptsize
+\begin{lstlisting}
+
+let fct_t2 (x) =
+  match x with
+   | Cstr2 (a, b, c) -> ()
+;;
+\end{lstlisting}}
+
+NOTA: TO BE COMPLETED.
+
+Any type expression, even recursive, can be used as a  parameter of
+value contructors\index{type!recursive}.
+For instance, the type of lists of boolean $\times$ integer pairs
+could be defined like:
+
+{\scriptsize
+\begin{lstlisting}
+type b_i_list =
+  | Empty
+  | Cons ((bool * int) * b_i_list)
+;;
+\end{lstlisting}}
+
+From this type definition, a value of type {\tt b\_i\_list} is
+either empty (constructor {\tt Empty}) or has a head (the first
+component of the {\tt Cons} constructor) and a tail list (the
+second component of this constructor): {\tt Cons ((false, 2), (Cons
+  ((true, 1), Empty)))}. The length of this list is 2 and its
+elements are {\tt (false, 2)} followed by {\tt (true, 1)}.
+
+\bigskip
+
+
+
+\vspace{0.2cm}
+\begin{syn}
+\nt{type-params} \is
+  \tok{(} \repsep{\tok{'} \nt{lident}}{\tok{,}} \tok{)}
+\sep
+\nt{type-args} \is
+  \tok{(} \repsep{\nt{type-exp}}{\tok{,}} \tok{)}
+\sep
+\nt{constructor} \is
+  \tok{\vertical} \nt{uident} \opt{\nt{type-args}}
+\sep
+\nt{sum-type-def} \is
+  \tok{type} \nt{lident} \opt{\nt{type-params}} \tok{=}
+  \reps{\nt{constructor}}
+\end{syn}
+% \begin{syntax}
+% \syntaxclass{Sum types definitions:}
+% opt\_params & ::= & \epsilon
+%     \mid \terminal{(}\ \terminal{'}ident \{\terminal{,} \terminal{'}ident \}*
+%     \terminal{)} & \\
+% opt\_args & ::= & \epsilon
+%     \mid \terminal{(}\ \tau\ \{\terminal{,} \tau \}* \terminal{)} & \\
+% constructor & ::= & \terminal{\mid}\ uident\ opt\_args & \\
+% sum\_type\_def & ::= &
+%     \terminal{type}\ ident\ opt\_params\  \terminal{=} \  constructor+
+% \end{syntax}
+\vspace{0.2cm}
+
+
+\vspace{0.5cm}\noindent {\bf Record types}
+\label{record-type-definition}
+\index{type!definition!record}
+
+\bigskip
+
+Record types provide a way to aggregate data of various types, a bit like
+tuples, but naming the components of the group, instead of
+differentiating them by their position like in tuples. A record is
+a sequence of names and types between braces. For example:
+
+{\scriptsize
+\begin{lstlisting}
+type experiment_conditions = {
+  x : int ;
+  y : int ;
+  z : int ;
+  temperature : int ;
+  pressure : int
+} ;;
+
+type identity = {
+  name : string ;
+  birth : int ;
+  living : bool
+} ;;
+\end{lstlisting}}
+
+\vspace{0.2cm}
+\begin{syn}
+\nt{field} \is
+  \nt{lident} \tok{=} \nt{type-exp} \tok{;}
+\sep
+\nt{record-type-def} \is
+  \tok{type} \nt{lident} \nt{type-params} \tok{=}
+  \tok{\{} \reps{\nt{field}} \tok{\}}
+\end{syn}
+
+% \begin{syntax}
+% \syntaxclass{Record types definitions:}
+% field & ::= & ident\ \terminal{:}\ \tau\ \terminal{;} & \\
+% opt\_params & ::= & \epsilon
+%     \mid \terminal{(}\ \terminal{'}ident \{\terminal{,} \terminal{'}ident \}*
+%     \terminal{)} & \\
+% record\_type\_def & ::= &
+%     \terminal{type}\ ident\ opt\_params\  \terminal{=}
+%     \ \terminal{\{} field+ \terminal{\}}
+% \end{syntax}
+\vspace{0.2cm}
+
+To create a {\bf value} of a record type, a value
+must be provided for each field of the record.
+
+{\scriptsize
+\begin{lstlisting}
+{ name = "Benjamin" ; birth = 2003 ; living = true }
+\end{lstlisting}}
+
+Like in tuples, records can mix types of fields.
+
+\vspace{0.5cm}\noindent{\bf Parameterised type definitions}
+
+It is possible, {\em at toplevel}, to {\bf parameterise a type
+  definition} with a {\bf type variable} that
+can be instantiated by any type expression. A type variable is written
+as an identifier preceded by a {\tt '} (quote) character.
+
+ For instance, the type
+definition of generic (polymorphic) lists may be defined by:
+
+{\scriptsize
+\begin{lstlisting}
+type list ('a) =
+  | Empty
+  | Cons ('a,  list ('a))
+;;
+\end{lstlisting}}
+
+The value
+constructor {\tt Cons} carries a value of type ``variable''
+and a tail of type
+{\tt list} with its parameter instantiated by the same type
+variable. This explicitly says that all the elements of such a list
+have the same type. It is now possible to use the {\tt list} type in
+type {\bf expressions} by providing a type {\bf expression} as
+argument of the {\bf type constructor} {\tt list}. For instance,
+{\tt list (int)} is the type of lists containing integers,
+{\tt list (list (char))} is the type of lists containing lists of
+characters.
+
+Parameterised record types can also be introduced, as in the following example:
+
+{\scriptsize
+\begin{lstlisting}
+type pair ('a, 'b) = {
+  first : 'a ;
+  second : 'b
+} ;;
+
+type int_bool_pair = pair (int, bool) ;;
+\end{lstlisting}}
+
+\subsection{Type-checking}
+The type-checking process is roughly similar to ML
+type-checking. Polymorphic types are allowed at top-level. However,
+methods are not allowed to be polymorphic. This means that their types
+cannot contain variables. But they may contain collection parameters
+as stated in section \ref{collection-parameter}.
+
+A type $t_1$ is an  {\bf instanciation} of a type $t_2$ if $t_1$ is obtained
+by replacing some type variables of $t_2$ by a ``more defined type
+expression''.
+
+For example, $'a \rightarrow {\tt\ int\ } \rightarrow {\tt\ bool\ }$
+is an instanciation of
+$'a \rightarrow {\tt\ int\ } \rightarrow 'c$ since we replaced
+the variable $'c$ by the type {\tt bool}.
+
+\smallskip
+Two types $t_1$ and $t_2$ are said {\bf compatible}\index{type!compatible}
+if they have a {\bf common} instanciation. For the intuition, this
+means that there is an instanciation of the variables in $t_1$ and
+an instanciation of the variables in $t_2$ such that these instanciations
+make $t_1$ and $t_2$ the same type. Note that type variables appearing in
+different type expressions are different variables, that is
+$'a \to {\tt int}$ and ${\tt bool} \to 'a$ are compatible.
+
+For example, we consider the two following types:
+\begin{compact-itemize}
+  \item $t_1 = 'a \rightarrow {\tt\ int\ } \rightarrow 'b \rightarrow 'c$
+  \item $t_2 = {\tt bool\ } \rightarrow 'd \rightarrow 'd \rightarrow 'e$
+\end{compact-itemize}
+
+In $t_1$ we replace: $'a$ by {\tt bool}, and we leave the others
+variables unchanged. We get the new type
+$t'_1 = {\tt bool\ } \rightarrow {\tt\ int\ } \rightarrow 'b \rightarrow 'c$.
+
+In $t_2$, we replace $'d$ by {\tt int}, $'e$ by $'c$. We get the new
+type
+$t'_2 = {\tt bool\ } \rightarrow {\tt\ int\ } \rightarrow {\tt\ int\ } \rightarrow 'c$.
+
+The type $t'_1$ is an instanciation of $t_1$. The type $t'_2$ is an
+instanciation of $t_2$. The two types $t'_1$ and $t'_2$ are
+structurally the same. Hence $t_1$ and $t_2$ are {\bf compatible}.
+
+As it can be seen, an instanciation does not need to give a value to all the
+type variables.
+
+\medskip
+For the sake of intuition, compatibility is a generalisation of
+the notion of types being ``equal''. The most trivial instanciation
+appears when the two types do not have any type variables; in
+this case they are compatible iff they are structurally equal. This
+illustrates the common view of ``being a good type'' when for
+instance providing an argument to a function according to the type of
+the expected argument in the function's prototype.
+
+% If $t_2$ is introduced by a top-level definition, then its
+% variables can be replaced by any (legal) type expression. Note that if $t_2$
+% contains a formal collection parameter (thus an identifier which
+% ``smells'' like a variable  but which indeed is not a
+% variable), then in  $t_1$ this formal parameter can be replaced by an
+% effective one.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Representations}\label{representation-type}
+As further explained (see section \ref{rep-is-method}) the
+representation is a method of a species that describes the internal
+data structure that the species manages. Hence, it is a kind of {\bf
+  type definition}, more accurately an {\bf alias type
+  definition}. This means that a representation does not introduce a
+new type, it only ``assigns'' to the representation a {\bf type
+  expression} defining the type of the manipulated entities of the
+species. Moreover, like for any other methods (cf. section
+\ref{no-polymorphism-for-methods}), {\em the representation must not
+  be a polymorphic type}. Thus its definition cannot
+contain type variables (but may contain collection parameter
+names). Defining a species' representation is simply done by adding the
+{\tt representation} method:
+
+ {\scriptsize
+\begin{lstlisting}
+open "basics" ;;
+
+species IntPair =
+  representation = (int * int) ;
+end ;;
+\end{lstlisting}}
+
+Recall that the type introduced by the method {\tt representation} is
+denoted by {\tt Self} within the species.
+
+\vspace{0.2cm}
+\begin{syn}
+\nt{representation} \is \tok{representation~=} \nt{type-exp}
+\end{syn}
+
+% \begin{syntax}
+% \syntaxclass{Representation:}
+% representation & ::= &
+%     \terminal{representation}\ \terminal{=}
+%     \ \tau
+% \end{syntax}
+\vspace{0.2cm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Expressions}
+\label{expressions}
+\index{expression} Expressions are constructs of the language that are
+evaluated into a {\bf value} of a certain {\bf type}. Hence values and
+types are not at the same level. Types serve to classify values into
+categories.  Although proofs may contain expressions, we describe them
+in Sec. \ref{making-proofs}. Indeed proofs are not expressions, they do
+not lead to {\focal} values thus live at another level.
+
+\vspace{0.2cm}
+\begin{syn}
+\nt{qualified-uident} \is
+  \opt{\opt{\nt{ident}} \tok{\#}} \nt{uident}
+\sep
+\nt{qualified-lident} \is
+  \opt{\opt{\nt{ident}} \tok{\#}} \nt{lident}
+\sep
+\nt{lident-or-operator} \is
+  \nt{lident} \orelse \tok{(} \nt{operator} \tok{)}
+\sep
+\nt{method-ident} \is
+     \opt{\tok{Self}} \tok{!} \nt{lident-or-operator}
+\alt \opt{\nt{lident} \tok{\#}} \nt{uident} \tok{!} \nt{lident-or-operator}
+\sep
+\nt{exp} \is
+     \nt{integer-literal}
+\alt \nt{string-literal}
+\alt \nt{character-literal}
+\alt \nt{float-literal}
+\alt \tok{true} \orelse \tok{false}
+\alt \nt{qualified-uident}
+\alt \nt{method-ident}
+\alt \tok{let~rec} \repsep{\nt{let-binding}}{\tok{and}}
+     \tok{in} \nt{exp}
+\alt \tok{if} \nt{exp} \tok{then} \nt{exp} \tok{else} \nt{exp}
+\alt \tok{match} \nt{exp} \tok{with} \reps{\nt{match-binding}}
+\alt \nt{exp} \tok{(} \repsep{\nt{exp}}{\tok{,}} \tok{)}
+\alt \nt{prefix-op} \nt{exp}
+\alt \nt{exp} \nt{infix-op} \nt{exp}
+\alt \tok{\{} \repsep{\nt{record-field-value}}{\tok{;}} \tok{\}}
+\alt \tok{\{} \nt{exp} \tok{with}
+              \repsep{\nt{record-field-value}}{\tok{;}} \tok{\}}
+\alt \nt{exp} \tok{.} \nt{qualified-lident}
+\alt \tok{(} \nt{exp} \tok{)}
+\sep
+\nt{record-field-value} \is
+  \nt{qualified-lident} \tok{=} \nt{exp}
+\sep
+\nt{let-binding} \is
+     \nt{lident} \opt{\tok{in} \nt{type-exp}} \tok{=} \nt{exp}
+\alt \nt{lident} \tok{(}
+                 \repsep{\nt{lident} \tok{in} \nt{type-exp}}{\tok{,}}
+                 \tok{)}
+     \tok{=} \nt{exp}
+\sep
+\nt{match-binding} \is \tok{\vertical} \nt{pattern} \tok{->} \nt{exp}
+\sep
+\nt{pattern} \is
+     \nt{integer-literal}
+\alt \nt{string-literal}
+\alt \nt{character-literal}
+\alt \nt{float-literal}
+\alt \tok{true} \orelse \tok{false}
+\alt \nt{lident}
+\alt \nt{qualified-uident}
+     \opt{\tok{(} \repsep{\nt{pattern}}{\tok{,}} \tok{)}}
+\alt \tok{\_}
+\alt \tok{\{} \repsep{\nt{record-field-pattern}}{\tok{;}} \tok{\}}
+\alt \tok{(} \repsep{\nt{pattern}}{\tok{,}} \tok{)}
+\alt \tok{(} \nt{pattern} \tok{)}
+\sep
+\nt{record-field-pattern} \is
+  \nt{qualified-lident} \tok{=} \nt{lident}
+\end{syn}
+
+% \begin{syntax}
+% \syntaxclass{Expressions:}
+% exp & ::= & integer\_literal & \\
+%     & \mid & string\_literal & \\
+%     & \mid & character\_literal & \\
+%     & \mid & float\_literal & \\
+%     & \mid & {\tt true}\ \mid\ {\tt false} & Boolean constant \\
+%     & \mid & \{ident? \terminal{\#}\}?uident & sum type value constructor \\
+%     &      &                          & or species/collection identifier \\
+%     & \mid & \terminal{Self}? \terminal{!} uident &
+%                        Method of the current species \\
+%     & \mid & \{ident? \terminal{\#}\}? \{uident \terminal{!}\}? lident &
+%                Method from specified species/collection \\
+%     & \mid & \{ident? \terminal{\#}\}? \{uident \terminal{!}\}?
+%                \terminal{(} operator \terminal{)} & Infix or prefix
+%             operator used in functional position \\
+%     & \mid & \terminal{let}\ \terminal{rec}?\ let\_binding
+%                \ \{\terminal{and}\ let\_binding \}* &  Let bound definition \\
+%     &      & \ \ \ \terminal{in}\ exp & \\
+%     & \mid & \terminal{if}\ exp\ \terminal{then}\ exp
+%                  \ \terminal{else}\ exp & Conditional \\
+%     & \mid & \terminal{match}\ exp\ \terminal{with}\ match\_binding+ &
+%                      Pattern matching \\
+%     & \mid & exp\ \terminal{(} exp \{\ \terminal{,} exp\ \}* \terminal{)} &
+%                      Function application \\
+%     & \mid & unary\_operator\ exp & Application of unary operator \\
+%     & \mid & exp\ binary\_operator\ exp & Application of binary operator \\
+%     & \mid & \terminal{\{}\ record\_field\_value & Record value \\
+%     &      &     \hspace{0.6cm}  \{\ \terminal{;}\ record\_field\_value\ \}+
+%                 \ \terminal{\}} & \\
+%     & \mid & \terminal{\{}\ exp\ \terminal{with}\ record\_field\_value &
+%                   Record value clone \\
+%     &      &      \hspace{1.0cm}  \{\ \terminal{;}\ record\_field\_value\ \}+
+%                   \ \terminal{\}} & \\
+%     & \mid & expr\ \terminal{.}\{ident\terminal{\#}\}?lident &
+%                  Record field access \\
+%     & \mid & \terminal{(} exp \terminal{)} & Parenthesised expression
+% \end{syntax}
+
+% \begin{syntax}
+% \syntaxclass{Record field value:}
+% record\_field\_value & ::= &
+%      \{ident? \terminal{\#}\}? lident\ \terminal{=}\ exp &
+% \end{syntax}
+
+% \begin{syntax}
+% \syntaxclass{Let bindings:}
+% let\_binding & ::= & lident\ \{\terminal{in}\ type\_expression\}?
+%            \ \terminal{=}\ exp & Definition without parameter \\
+%    & \mid & lident\
+%                 \terminal{(}lident\ \{\terminal{in}\ type\_expression\}? &
+%                  Definition with parameter(s) \\
+%    &     &      \hspace{1.3cm} \{\ \terminal{,}\ lident
+%                   \ \{\terminal{in}\ type\_expression\}?\}* \terminal{)} & \\
+%    &     &    \ \ \ \ \{\terminal{in}\ type\_expression\}?\ \terminal{=}\ exp &
+% \end{syntax}
+
+% \begin{syntax}
+% \syntaxclass{Match bindings:}
+%  match\_binding & ::= &
+%    \terminal{\mid}\ pattern\ \terminal{-}\/\terminal{>}\ exp &
+% \end{syntax}
+
+% \begin{syntax}
+% \syntaxclass{Patterns:}
+% pattern & ::= & integer\_literal & \\
+%     & \mid & string\_literal & \\
+%     & \mid & character\_literal & \\
+%     & \mid & float\_literal & \\
+%     & \mid & {\tt true}\ \mid\ {\tt false} & Boolean constant \\
+%     & \mid & lident & Variable \\
+%     & \mid & \{ident? \terminal{\#}\}?uident & 0-ary sum type value constructor\\
+%     & \mid  & \{ident? \terminal{\#}\}?uident
+%                \ \terminal{(}\ pattern\ \{\terminal{,}\ pattern\}*\terminal{)}&
+%                N-ary sum type constructor \\
+%     & \mid & \_ & ``Catch-all'' pattern \\
+%     & \mid & \terminal{\{}
+%                record\_field\_pattern\
+%                \{ \terminal{;}\ record\_field\_pattern \}*
+%                  \terminal{\}} & Record \\
+%     & \mid & \terminal{(} pattern\ \{ \terminal{,}\ pattern\}+
+%                   \terminal{)} & Tuple \\
+%     & \mid & \terminal{(} pattern \terminal{)} & Parenthesised pattern
+% \end{syntax}
+
+% \begin{syntax}
+% \syntaxclass{Record field pattern:}
+% record\_field\_pattern & ::= &
+%      \{ident? \terminal{\#}\}? lident\ \terminal{=}\ lident &
+% \end{syntax}
+\vspace{0.2cm}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Literal expressions}
+\index{expression!literal} \index{expression!constant}
+
+The literal
+expressions  of type integer, string, character,
+float and boolean are evaluated into the constant represented by the
+literal. The expression {\tt 25} denotes the value 25 of type
+{\tt int}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Sum type  value constructor expressions}
+\index{expression!sum type constructor}
+We presented in section \ref{type-definition} the way to define sum
+types. We saw that {\bf values} of such a {\bf type} are built using
+its {\bf value} constructors.
+
+Hence, for {\bf value} constructors with no argument, the constructor itself
+is an expression that gets evaluated in a value wearing the same name.
+
+For {\bf value} constructors with parameters, a value is created by
+evaluating an expression applying the constructor to as many expressions as
+the constructor's arity. Obviously, sub-expressions used as arguments of
+the constructor must be well-typed (compatible) according to the type of the % [EJ] Check
+constructor. The resulting value is denoted by the
+name of the constructor followed by the tuple of values given as
+arguments. For instance, with the following type definition:
+
+{\scriptsize
+\begin{lstlisting}
+type t =
+  | A
+  | B (int * bool)
+;;
+\end{lstlisting}}
+
+\noindent the expression {\tt A} is evaluated into $A$, the expression
+{\tt B ((2 + 3), true)} is evaluated into the value $B (5, true)$.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Identifier expressions}
+\label{identifier-expressions}
+\index{identifier}
+\index{expression!identifier}
+
+
+An identifier expression is either a basic identifier, an extended
+identifier or a qualified identifier (see section
+\ref{qualified-name}), which denotes the value of this identifier in
+the scope of the expression. The identifier is said to be {\bf bound}
+to this value.
+
+The value bound to an identifier can be of any type. A value having a
+functional type, that is a {\bf functional
+  value}\label{functional-value}\index{functional value} (also called a
+{\bf closure}), is created by a function definition. Such a value,
+obtained by the evaluation of the body of the function, is slightly
+different from other ones since it embeds both the code of the
+function (i.e. a kind of evaluation of its body expression) and its
+environment (i.e. bindings between identifiers occuring in the body of
+the function and their value in the definition scope). This closure
+will be kept untouched until it appears in a functional application
+expression as described further in \ref{function-application}.
+
+There are several possibilities to bind an identifier.  Definitions
+introduce a basic or extended identifier and {\bf binds} it to the
+value of the expression stated in the definition.  There are three
+ways to introduce and directly bind an identifier:
+\begin{compact-itemize}
+  \item by a {\tt let-in} construct,
+  \item by a toplevel-{\tt let}-definition,
+  \item by a method definition ({\tt let}).
+ \end{compact-itemize}
+ Each of these cases will
+be described in their related section.
+
+
+There are two ways to introduce basic identifiers as parameters:
+\begin{compact-itemize}
+\item in a function definition
+ \item by a pattern inside a {\tt match-with} construct
+\end{compact-itemize}
+Then the binding of the parameter is deferred until the application of
+the function or the pattern-matching mechanism.
+ Each of these cases will
+be described in their related section.
+
+
+Suppose that an expression $exp$ contains several occurrences of an
+identifier {\tt my\_var}.  Assume that, in the scope of $exp$, {\tt
+  my\_var} is bound to a {\bf value} $v$, then each occurrence of {\tt
+  my\_var} in $exp$ is substituted by $v$ during the evaluation of
+$exp$. This is basically the principle of the so-called {\bf eager} or
+{\bf call by-value} evaluation regime.
+
+
+\medskip
+\noindent{\bf Identifier resolution}
+Remember that identifiers forms differ depending on the syntactic
+class of entity they refer to, capitalized identifiers being used for
+species and collections.  To evaluate an identifier expression, the
+{\focal} compiler tries to find its definition from the current scoping
+context.  \index{name!resolution} \index{name!qualification}
+\index{scoping} It searches for the closest (latest) definition with this name,
+starting by the parameters present in the current definition
+(i.e. formal parameters in a function and in a {\tt match-with}
+construction and {\tt let-in} bound identifiers). If no identifier
+definition with this name is found, the search goes on among the
+methods of the current species. If a method is found with this name,
+it will be retained, otherwise the identifier is looked in the
+preceding toplevel-definitions of the current compilation unit.
+\label{identifier-scoping-and-open}
+\index{directive!open} If no suitable definition is found, then the
+ones imported by the {\tt open} directives are examined to find one
+with the searched name. Finally if no definition is found, the
+identifier is {\bf reported unbound} by an error message.
+
+ Note that an
+{\tt open} directive may arise anywhere at toplevel in the source
+code. Hence, the order of search between the current file's
+toplevel-definitions and the imported ones by {\tt open} is not really
+separated: the name resolver looks for the most recent definition
+considering that the toplevel-definitions and the imported ones are
+ordered according to the apparition of the effective definitions in
+the file themselves and the imported ones. In other words, if a
+toplevel-definition exists for an entity {\tt foo}, if later an
+{\tt open}directive imports another {\tt foo}, then this last one
+will be the retained one.
+
+\medskip
+
+\medskip
+\noindent{\bf Identifier qualification}
+
+Identifiers can manually be disambiguated in term of compilation unit
+location using the sharp (\#) notation as explained in section
+\ref{qualified-name}.
+
+\medskip \index{method!qualification} As further presented in section
+\ref{method-qualification}, species methods identifiers are made
+explicit using the ``!'' notation. The notation {\tt Spe!meth} stands
+for ``the method {\tt meth} of the species {\tt Spe}''. By extension,
+{\tt !meth} stands for the method {\tt meth} of the current
+species. It is possible to explicit {\tt Self} in the naming scheme
+using {\tt Self!meth}. This is useful when a more recently defined
+identifier hides a method of the species at hand:
+
+{\scriptsize
+\begin{lstlisting}
+species S =
+  let m (x in ...) = ... ;
+  let n (y in ...) =
+    ...
+    let m = ... in
+    (* Want to call the *method* "m" with argument the local "m" !!! *)
+    !m (m) ;
+end ;;
+\end{lstlisting}}
+
+Hence, the name resolution mechanism allows to omit the ``!'' but
+making it explicit can help for conflicts resolution. Moreover, when
+invoking species parameters' methods, the name resolution never
+searches among methods of collection parameters, hence the explicit ``!''
+notation is required.
+
+As the grammar shows, name qualification by compilation unit and
+hosting species can be freely mixed. We can build identifiers like
+{\tt my\_file\#My\_species!my\_method} to refer to the method
+{\tt my\_method} hosted in the species {\tt My\_species} located in
+the {\focal} source file ``my\_file.fcl''. These disambiguation
+methods are indeed orthogonal.
+
+
+
+\medskip
+\noindent{\bf Extended identifier expressions}
+
+Finally, infix/postfix operators can be used as regular
+identifiers. Usually, an operator is syntactically used according to
+it prefix or infix nature. For instance, the binary {\tt +} operator
+is used between its arguments as in {\tt x + 4}, the unary operator {\tt
+  \tilde} is used before its argument as in {\tt \tilde x}. {\focal} allows to
+refer to those operators as regular identifiers (for instance as function
+parameters).
+This allows to use operators as any other identifiers, and
+\begin{compact-itemize}
+  \item using them as regular function (i.e. in functional position),
+  \item bind them as arguments of functions,
+  \item use them as regular identifiers in expressions, for example to
+    pass them as arguments of other functions.
+\end{compact-itemize}
+The following example illustrate the second point:
+\begin{lstlisting}
+let twice(( + ), x, y, z) = (x + y) + z ;;
+\end{lstlisting}
+
+To get an identifier from an operator, its symbol
+(cf. \ref{extended-identifiers}) must be delimited by spaces and enclosed
+into matching parentheses.
+For example: {\tt (\ + )} is the regular identifier corresponding to the
+infix symbol {\tt +}.
+
+Note that spaces around the operator symbol are mandatory and part of the
+syntax. If spaces are omitted, the parens get their usual meaning and the
+interpretation can be completely different.
+A specially puzzling error is to write {\tt (*)} to mean {\tt ( * )}:
+
+{\scriptsize
+\begin{lstlisting}
+...
+let (*) (x, y) = ...
+\end{lstlisting}}
+
+Now, {\tt (*} is evidently parsed as the beginning of comment,
+leading to a syntax error or any other cryptic error long after the faulty
+{\tt (*} occurrence.
+Conversely {\tt *)} is always considered as an end of comment by the lexical
+analyzer.
+
+%This pitfall exists indeed
+%only for the ``{\tt *}-starting'' and ``{\tt *}-ending'' operators,
+%but a good practice is to have a homogeneous naming scheme, hence
+%always adding extra spaces.
+% I'm not sure that this is true. I don't want to find a counter example
+% though.
+% In fact we do not need a counterexample:
+% addind spaces is not a good practice: it is mandatory! In {\focal},
+% (+) never means the prefix version of + !!
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{{\tt let-in} expression}
+\index{let-in}
+\index{expression!let-in}
+{\tt let-in} expression binds an identifier to a value to
+evaluate a trailing expression (the ``{\tt in-part}'' of the ``{\tt let-in}''
+or ``body'') where this ident may appear. During the evaluation of the
+trailing expression, any occurrence of the bound identifier is ``replaced''
+by the value bound to this identifier. For instance:
+
+{\scriptsize
+\begin{lstlisting}
+let x = 3 + 2 in (x, x)
+\end{lstlisting}}
+
+\noindent binds {\tt x} to the evaluation of the {\bf expression} {\tt (3+2)}
+(i.e. the integer {\bf value} $5$) and then, the evaluation of the
+trailing expression returns the tuple {\bf value} $(5, 5)$.  From the
+syntax, it is clear that {\tt let-in} constructs can be nested.  For
+instance,
+
+{\scriptsize
+\begin{lstlisting}
+let x = 3+2 in
+  let y = (x, x) in
+  let z = true in
+  (y, z, y, z)
+\end{lstlisting}}
+
+\noindent returns the value $((5,\ 5),\ true,\ (5,\ 5),\ true)$ of type
+{\tt ((int * int) * bool * (int * int) * bool)}.
+
+
+
+\medskip
+\index{identifier binding}
+Note that the notion of ``binding an identifier to a value'' is
+essentially different from the
+notion of assignment in imperative languages. In such languages (like
+C, Java, Pascal,\ldots) a variable is first {\em declared}, then a value is
+{\em assigned} to the variable. It is thus possible to assign a variable
+several times to different values. For example in C:
+
+{\scriptsize
+\begin{lstlisting}
+...
+{
+  int i ;
+  ... ;
+  i = 10 ;
+  while (i > 0) i = i-- ;
+}
+...
+\end{lstlisting}}
+
+The variable {\tt i} is declared, then assigned the initial value
+$10$, then the {\tt while} loop makes it decreasing by successive
+assignments.
+
+In a {\tt let-in} binding construct, an identifier is given a value
+once and for all: it is impossible to change its  value, once it
+has been bound.
+Each new definition, binding an already bound identifier will just hide the
+old definition. For instance:
+
+{\scriptsize
+\begin{lstlisting}
+let x = 5 in
+  let y = (x, x) in
+  let x = true in
+  let z = (x, x) in
+  (y, x, y, x)
+\end{lstlisting}}
+
+\noindent leads to the value $((5,\ 5),\ true, (5,\ 5),\ true)$
+of type {\tt ((int * int) * bool * (int * int) * bool)}. Clearly the
+first value bound to {\tt x}  holds until {\tt x}
+is bound again: $5$ is used to define {\tt y} but not to define
+{\tt z}, since the value of {\tt x} is then the boolean $true$.
+
+\medskip
+
+The {\tt let-in} construct serves to bind an identifier to a value of
+any type.  As a consequence, it can also bind an identifier to a
+functional value.  This lead to the natural way to define {\bf
+  functions}. For instance:
+
+ {\scriptsize
+\begin{lstlisting}
+let f (x, y) = x + y in
+f (6, 7)
+\end{lstlisting}}
+
+The {\bf let} construct binds {\tt f} to a function which has 2
+parameters {\tt x} and {\tt y}, and the body of {\tt f} is the
+addition of these 2 parameters. Then the body of the {\tt let-in}
+construct applies {\tt f} to 2 effective arguments {\tt 6} and {\tt
+  7} (we obviously expect the result of this {\em application} to be
+$13$).  (Function application is explained below in
+\ref{function-application}).
+
+It is possible to provide a type constraint to precise the type of the
+return value of a function, or the type of the {\tt let}-bound
+variable or parameters:
+
+{\scriptsize
+\begin{lstlisting}
+let f (x : int, y) = x + y in
+f (6, 7)
+\end{lstlisting}}
+{\scriptsize
+\begin{lstlisting}
+let f (x : int, y) in int = x + y in
+f (6, 7)
+\end{lstlisting}}
+{\scriptsize
+\begin{lstlisting}
+let a in int = 3 in
+(a, a)
+\end{lstlisting}}
+
+
+
+\medskip
+It is possible to define several identifiers at the same time separating
+each definition by the keyword {\tt and}.
+
+{\scriptsize
+\begin{lstlisting}
+...
+let f = exp_1
+and g  = exp_2
+and h = exp_3 in exp;
+\end{lstlisting}}
+
+All the definitions are separately evaluated ``in parallel''.  As a
+consequence, the identifiers introduced by a {\tt let ... and }
+cannot be used in the right members of this construction (in the {\tt
+  exp\_i}). Do not confuse this construct with nested {\tt let-in} as
+the followig one, where {\tt exp\_2} can contain {\tt f} and {\tt
+  exp\_3} can contain {\tt f} and {\tt g}.
+
+{\scriptsize
+\begin{lstlisting}
+let f = exp_1 in
+ g  = exp_2 in
+ h = exp_3 in exp
+\end{lstlisting}}
+
+Mutually recursive functions need to know each other because their
+bodies call these other functions and their definition require a
+non-nested evaluation of each function.  In this case, the keyword
+{\tt let} must be followed by the keyword {\tt rec}.
+
+{\scriptsize
+\begin{lstlisting}
+...
+let rec even (x) =
+   if x = 0 then true else odd (x - 1)
+and odd (y) =
+   if y = 0 then false else even (y - 1) in
+...
+\end{lstlisting}}
+
+{\large {\bf Warning:}} in the current version of {\focal} mutually
+recursive functions cannot be compiled into {\coq} code. Only
+{\ocaml} code generation is available. Moreover, for \coq, recursive
+functions imply termination proofs. This last point will be covered in
+the section \ref{recursive-function} especially dedicated to
+(non-mutually) recursive function definitions.
+
+
+
+\subsubsection{{\tt logical let}}
+As seen above, the {\tt let-in} construct is used to bind
+computational expressions. We would sometimes also like to have
+parameterised logical expressions, i.e. a kind of functions returning
+a logical proposition. For example we may want,  for a certain value
+of $x$ and $y$, to use the statement ``$x<y$ and $x+y < 10$'' (which
+holds or not) to build more complex logical expressions.
+
+% A first attempt is to use the logical expression $x < y /\backslash
+% x+y<10$ where $x$ and $y$ are considered as fresh (free)
+% variables. But there is no way in the language of properties to
+% instantiate $x$ and $y$ by different integer values in order to obtain
+% a proposition (regardless of its truth value).
+
+% Another attempt is to introduce a property bound to the proposition
+% $\forall x, y : {\tt int}, x < y /\backslash x+y<10$. It does not fit
+% because there is no provided way to substitute $x$ and $y$ by integer
+% values: there is no syntactical construction for elimination of a
+% universal (nor existential) quantifier in the language of properties
+% (note that elimination can be done during a proof).
+
+% Replacing the proposition by $\exists x, y : {\tt int}, x < y
+% /\backslash x+y<10$ does not help as we want to chose a particular $x$
+% and a particular $y$
+
+% The point here is that we do not want to express a property to prove
+% or a theorem but a logical expression that may be part of a property
+% and/or theorem. And under the assumptions in the environment of the
+% theorem/property, may be this logical expression will lead to a
+% statement that holds.
+
+
+To allow functional bindings in logical expressions {\focal} provide
+the {\tt logical let} construct. It serves to introduce a
+parameterised logical expression,  which can be applied to effective
+arguments to obtain a logical proposition.  Our example would be
+expressed by:
+
+{\scriptsize
+\begin{lstlisting}
+use "basics" ;;
+open "basics" ;;
+
+species S =
+  ...
+  logical let f (x in int, y in int) = x < y /\ x + y < 10 ;
+  ...
+end ;
+\end{lstlisting}}
+
+Since {\tt logical let} binds an identifier to a logical expression, the
+body of the definition {\bf must} obviously {\bf be of type}
+{\tt bool}. Once defined, {\tt f} can be used as a regular function,
+but only in
+properties and theorems statements. For instance:
+
+{\scriptsize
+\begin{lstlisting}
+use "basics" ;;
+open "basics" ;;
+
+species S =
+  ...
+  let m (x in Self) in int = ... ;
+  logical let f (x in int, y in int) = x < y /\ x + y < 10 ;
+  ...
+  property p : all a in Self, all b, c in int, f (c, b) => f (m (a), b) ;
+end ;
+\end{lstlisting}}
+
+See other examples in the standard library where this construction is
+used to define associativity, commutativity, \ldots
+
+% TODO local.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Conditional expression}
+\label{conditional-expression}
+\index{expression!if}
+\index{if}
+A conditional expression has the form:
+{\tt if} $exp_1$ {\tt then}
+$exp_2$ {\tt else} $exp_3$
+
+Its evaluation starts by the evaluation of the $exp_1$ expression
+which must be of type boolean. If its value is $true$ then the result
+value of the whole expression is the value of $exp_2$, otherwise
+(i.e. if its value is $false$) the value of $exp_3$. This obviously
+implies that $exp_2$ and $exp_3$ must have the same type. This
+construct is then a binary conditional expression (i.e. with 2
+branches).
+
+ {\scriptsize
+\begin{lstlisting}
+let f (x) = if x then 1 else 0 in ...
+\end{lstlisting}}
+
+The function {\tt f} will return $1$ if the effective argument
+provided for {\tt x} is $true$, otherwise it will return $0$.
+
+{\scriptsize
+\begin{lstlisting}
+let is_too_small (x) = ... in
+let y = ... in
+let y_corrected = if is_to_small (y) then 0 else y in ...
+\end{lstlisting}}
+
+In this example, we assume we have a function {\tt is\_too\_small}
+checking if a value is ``too small'' and an identifier {\tt y} bound
+to a certain value. The result of the conditional expression bound to
+{\tt y\_corrected} will be either $0$ if the condition is met or $y$
+otherwise.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Match expression}
+\index{match} \index{expression!match} \index{pattern matching}
+
+The {\tt match-with} construct is a generalised conditional construct
+with pattern-matching. By ``generalised'', we mean that unlike the
+{\tt if-then-else} which has only 2 branches, the present expression
+can have several branches. The notion of condition here is not anymore
+a boolean value. Instead, the construct allows to discriminate on the
+different values an expression is evaluated into. The basic structure
+of a {\tt match-with} consists in a discriminating expression followed
+by an enumeration of cases (called {\bf patterns}). The dicriminating
+expression is evaluated and its value is matched against the patterns,
+following the textual ordering of these patterns, until a match
+succeeds. Then the expression associated with the matching pattern is
+evaluated to obtain the value of the whole expression {\tt
+  match-with}.
+
+{\scriptsize
+\begin{lstlisting}
+let a = ... ;
+let x =
+  match a + 5 with
+   | 0 -> "zero"
+   | 5 -> "five"
+   | 1 -> "one"
+   | 10 -> "ten"
+   | _ -> "other" in
+...
+\end{lstlisting}}
+
+The discriminated expression in this case is {\tt a + 5} of type
+{\tt int}. We can then react to each (or some of the) values of this
+expression. When {\tt a + 5}  is equal to $0$ the result of the
+whole {\tt match-with} expression (bound to the identifier {\tt x}) is
+the string ``zero''. When {\tt a + 5} is equal to $1$, the result is the string
+``one'', and so on. The final pattern {\tt \_} stands for ``anything
+that was not in the previous cases'' (also called ``catch-all
+pattern''). Hence, the order of the patterns is important. If the
+case {\tt \vertical \_ ->} was put before the case {\tt \vertical 1 ->},
+then this last case would never be reached since the {\tt \_} pattern
+would have caught the discriminated value.
+
+
+
+\smallskip
+As a consequence of the structure of this construct, type constraints
+must be respected in order to have the whole expression well-typed:
+\begin{compact-itemize}
+  \item The type of the discriminating expression must be compatible with the
+    type of the patterns.
+  \item thus all the patterns must have compatible
+    types.
+  \item The types of all the result expressions in the rightmost parts
+    of the cases must be compatible.
+  \item The patterns have to be mutually exclusive (except for the catch-all
+        pattern, see below).
+  \item The different cases have to capture every possible pattern.
+\end{compact-itemize}
+
+\medskip In the example above, the patterns were constant. A value
+matches a constant pattern if and only if it is equal to this
+constant.  In addition, the
+{\tt match-with} construct provides true {\bf pattern matching}. That
+is, patterns may be built from constants, value constructors,
+variables and the catch-all symbol {\tt \_}. Any value matches any
+variable pattern and the {\tt \_} pattern. For general patterns built
+from value constructors, variables, constants, {\tt \_}, roughly
+speaking, a value matches a pattern if this pattern can be seen as a
+prefix of this value. Then, the variables of the pattern get bound to
+the parts of the discriminating expression that are ``at the same
+place'' than those variables. For example:
+
+{\scriptsize
+\begin{lstlisting}
+let e = ... in
+...
+let x =
+  match e with
+   | (0, 0, 0) -> 1
+   | (0, x, y) -> x + y
+   | (1, 1, x) -> x
+   | (x, y, z) -> x + y + z
+...
+\end{lstlisting}}
+
+According the the type-checking mechanism, the examined expression
+{\tt e} must have here type {\tt (int * int * int)}. The first pattern
+will be chosen if {\tt e} is  equal to the tuple $(0, 0, 0)$. We
+say here ``equal'' since there is no variable in the pattern, hence
+the only way to fit the pattern is to simply  be equal. If this pattern
+is not fitted, the we examine the second pattern. It will be chosen if
+{\tt e} has a $0$ as first component and any integer for the second
+and the third ones. In this case, the result value will be the
+evaluation of the expression {\tt x + y} where x will be bound to the
+effective second component of the value of {\tt e} and {\tt y} will be
+bound to its third component. We can notice that no ``catch-all pattern''
+is needed since the enumerated patterns cover all the possible values
+of tuples with 3 components (the last pattern does not put
+any constraint on the tuple components, hence will match all the
+remaining cases).
+
+The previous example used tuples as matched expression and patterns,
+but patterns also contain sum type value constructors, hence allowing
+to ``match'' on any sum type structure. For example:
+
+{\scriptsize
+\begin{lstlisting}
+type t =
+  | A
+  | B (int)
+  | C (int, int)
+;;
+...
+let e = A ;;
+let x =
+  match e with
+   | A -> 0
+   | B (3) -> 4
+   | B (_) -> 10
+   | C (x, 10) -> 5
+   | C (_, y) -> y
+;;
+\end{lstlisting}}
+
+This example shows different cases following the structure of the type
+{\tt t}. Note the use of the ``catch-all'' pattern
+inside  patterns. In fact, the ``catch-all'' pattern acts like
+a variable  unused in the rightmost part of the
+case. It is however preferable to use ``{\tt \_}'' instead of a
+variable since {\ocaml} generates warning for unused variables and the
+generated {\ocaml} code generated by {\focal} will not change unused
+variables into ``{\tt \_}''s.
+
+
+\smallskip
+Patterns also allow to match record values
+(cf. \ref{record-expression}), i.e. to match on values of the fields:
+
+{\scriptsize
+\begin{lstlisting}
+type t = { name : string ; birth : int } ;;
+let r = ... in
+let x =
+  match r with
+   | { name = "Alexandre" } -> ...
+   | { name = n ; birth = 2003 } -> ...
+   | { name = n } -> ...
+\end{lstlisting}}
+
+In such a pattern, fields not specified are considered as
+``catch-all'' patterns. Hence, the last case catches all the record
+values not caught before since the field {\tt name}'s value is bound
+to a variable (so, any value can match it) and the field
+{\tt birth} is absent (so, considered as {\tt birth = \_}).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Application expression}
+\label{function-application}
+\index{functional value} \index{expression!application} We previously
+saw that the {\tt let-in} construct allow for the definition of functions by
+binding an identifier to a functional value. Using a function by
+providing it with effective arguments to get its result value is
+called {\bf application}. Hence, in an application there are 2
+distinct parts: the applicative part that must be an expression
+leading to a functional value and the effective arguments that are
+expressions whose values will be provided to the function to make its
+computation. The syntax for application is simply the juxtaposition of
+the applicative expression and the comma-separated expressions used as
+arguments embraced by parentheses:
+
+{\scriptsize
+\begin{lstlisting}
+let f (x) = ... in
+let g (x, y) = ... f (y) ... in
+g (f (3), 4)
+...
+\end{lstlisting}}
+
+As described in \ref{functional-value}, the evaluation of an
+application of a function to its effective arguments start by the
+evaluation of these arguments (the order of the evaluation of several
+arguments is left unspecified). Then these effective values are
+substituted to the corresponding parameters inside the body of the
+function and the so-obtained expression (the substituted body) is
+evaluated.  For instance, having the
+following function and application:
+
+{\scriptsize
+\begin{lstlisting}
+let g (x, y) = (y, x) in
+g (true, 1)
+\end{lstlisting}}
+
+The evaluation of the {\tt let-in} expression first binds the
+identifier {\tt g} to a {\bf functional value} also called {\bf
+  closure}. Then the application expression {\tt g (true, 1)} is
+evaluated. So the values of {\tt g} and of the expression {\tt
+  (true,1)} are elaborated: the evaluation of {\tt g} returns a
+closure, {\tt true} is evaluated into the boolean {\bf value} $true$,
+{\tt 1} into the integer {\bf value} $1$. The next step is to evaluate
+the body of the {\bf closure} of {\tt g}, replacing the formal
+parameter {\tt x} by the effective argument $true$ and {\tt y} by
+$1$. The body of {\tt g} creates a tuple from its 2 arguments, putting
+{\tt y} in the first component and {\tt x} in the second. Hence, the
+result of the application is the tuple {\bf value} $(1,\ true)$.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Operator application expression}
+\index{expression!operator}
+Since operators are designed to be used in infix or prefix position,
+application of operators consists simply in providing arguments
+according to the operator infix/prefix nature. For infix operators,
+arguments are on left and right sides. For prefix operators, the
+operator is in front of the argument expression.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Record expression}
+\label{record-expression}
+\index{expression!record}
+As stated in \ref{record-type-definition},
+record types are defined by a list of labels with their types. As
+usual a record
+expression follows the same structure, replacing the type expressions
+of the definition by values of these types. For instance, assuming the
+given record type definition, the following example shows a possible
+record value:
+
+{\scriptsize
+\begin{lstlisting}
+type identity = {
+  name : string ;
+  birth : int ;
+  living : bool
+} ;;
+
+...
+{ name = "Nobody" ; birth = 42 ; living = false }
+...
+\end{lstlisting}}
+
+If the record type definition is in a different compilation unit, you
+may qualify the record fields by the ``{\tt\#}'' notation:
+
+{\scriptsize
+\begin{lstlisting}
+{ my_file#name = "Nobody" ; my_file#birth = 42 ; my_file#living = false }
+\end{lstlisting}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Cloning a record expression}
+\label{record-clone-expression}
+\index{expression!record!clone}
+ It is sometimes needed to create a new
+value of a record type by modifying a few fields of an existing
+record, leaving the other fields unchanged. If the record type
+definition contains numerous fields, manually copying the old fields
+values to create the new record value appears boring and error prone:
+
+{\scriptsize
+\begin{lstlisting}
+type t = { a : int ; b : int ; c : int ; d : int ; e : int ; f : int } ;;
+...
+let v1 = { a = 1 ; b = 2 ; c = 3 d = 4 ; e = 5 ; f = 6 } in
+...
+let v2 = {
+  a = v1.a ; b = v1.b ;
+  c = 5 ;  (* Changed value. *)
+  d = v1.c ;  (* an error since the requested value was  "v1.d". *)
+  e = 6 ;  (* Changed value. *)
+  f = v1.f } in
+...
+\end{lstlisting}}
+
+Instead of manually copy the unchanged fields, {\focal} provides a way
+to clone a record value, that is to create a {\bf new}, a {\bf fresh}
+value from an existing one,  only by specifying the fields whose values
+differ from the old record value:
+
+{\scriptsize
+\begin{lstlisting}
+type t = ... (* Like above. *)
+let v1 = ... (* Like above. *)
+...
+let v2 = { v1 with c = 5 ; e = 6 } in
+...
+\end{lstlisting}}
+
+As for other record value expressions, if the record type definition
+is in a different compilation unit, you may qualify the record fields
+by the ``{\tt\#}'' notation.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Record field access expression}
+\label{record-field-access}
+\index{expression!record!field}
+Once a record value is created by aggregating values of its fields, it
+is possible to recover the value of one field by a dot notation. For
+instance, assuming the type definition and record values of the
+previous example:
+
+{\scriptsize
+\begin{lstlisting}
+... v1.a ...
+... v2.c ...
+\end{lstlisting}}
+
+respectively get the value of the fields {\tt a} of {\tt v1} and
+{\tt c} of {\tt v2}, that is, $1$ and $5$. If the record type
+definition is in a different compilation unit, you may qualify the
+record fields by the ``{\tt\#}'' notation: {\tt t1.my\_source\#a}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Parenthesised expression}
+The parentheses can be used around any expression, to enforce the
+associativity or evaluation order of expressions. Simple expressions
+(i.e. atomic) can also be parenthesised without changing their
+values.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Core language expressions and definitions}
+In the previous sections, we described the syntax of
+expressions. Expressions rarely appear outside any
+definition but it is still possible to have top-level
+expressions. They  will be directly evaluated and not bound to any
+identifier, but this implies that these expressions use previously
+written definitions.
+
+\medskip
+As further explained  in (cf. \ref{species-intro}) species are made
+of methods. Some methods contain expressions (functions, properties,
+theorems). Function-methods are introduced by the {\tt let} keyword,
+using the same syntax (hence expressions) that the {\tt let-in}
+construct except the fact they do not have a ``{\tt in}'' expression.
+The idea is that the ``{\tt in}'' expression is implicitly the
+remaining of the species. Properties and theorems are respectively
+introduced by the keywords {\tt property} and {\tt theorem} and may
+ contain expressions. The  section
+\ref{properties-theorems-proofs}  is dedicated to their detailed explanation.
+
+{\scriptsize
+\begin{lstlisting}
+open "basics" ;;
+species My_Setoid inherits Basic_object =
+  signature ( = ) : Self -> Self -> bool ;
+  signature element : Self ;
+  let different (x, y) = basics#not_b (x = y) ;
+
+  property refl : all x in Self, x = x ;
+  property symm : all x y in Self, Self!( = ) (x, y) -> y = x ;
+end ;;
+\end{lstlisting}}
+
+
+\medskip
+
+Toplevel-definitions are definitions introduced outside of any
+species. General functions and general theorems, i.e. that do not
+depend on a particular species can be introduced as
+toplevel-definitions. Toplevel-functions are introduced by the {\tt
+  let} keyword and don't have a ``{\tt in}'' expression, this part
+being implicitly the remaining of the program (i.e. the current
+compilation unit and those using the current).  Toplevel-theorems are
+introduced by the {\tt theorem} keyword. These definitions must be
+ended by a double semi (``{\tt ;;}'').
+
+{\scriptsize
+\begin{lstlisting}
+let is_failed (x) =
+  match x with
+  | Failed -> true
+  | Unfailed (_) -> false
+;;
+
+theorem int_plus_minus: all x y z in int,
+  (*   x + y = z -> y = z - x *)
+  #base_eq (#int_plus (x, y), z) -> #base_eq (y, #int_minus (z, x))
+  proof =
+    coq proof {*
+      intros x y z;
+      unfold int_plus, int_minus, base_eq, syntactic_equal in |- *;
+      intros H;
+      unfold bi__int_minus;
+      apply EQ_base_eq; apply Zplus_minus_eq;
+      symmetry  in |- *;
+      apply (decidable _ _ _ (Z_eq_dec (x + y) z) H).
+      Qed.
+    *}
+;;
+\end{lstlisting}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Files and uses directives}
+\label{file directive}
+{\focal} provides 3 directives that are not expressions. This means
+that they do not lead to values or computation.
+
+All these directives deal with searching for files in the available
+search paths. The path of the compilation unit is never specified
+since it is always searched first. Hence, the file will be searched
+first in the local directory, then in the stardard library directory
+and finally in the library search path specified with the {\tt -I}
+option (cf. \ref{compiler-options}).
+
+Note that if several files at different locations have the same name,
+the directives will use the first fiound in the search path set in the
+compilation command-line.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{The {\tt use} directive}
+\index{directive!use}
+This directive is followed by the name of the file to open between
+double quotes without the ``.fo'' extension (compiled version of a ``.fcl'').
+Before being allowed to use the qualified notation for an identifier,
+(i.e. the ``{\tt\#}''-notation), the qualifying compilation must be
+declared with a directive {\tt use}. In other terms,
+``using'' a compilation units allows to access its entities from the
+current compilation unit.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{The {\tt open} directive}
+\index{directive!open}
+
+This directive is followed by the name of the file to open between
+double quotes without the ``.fcl'' extension. As previously introduced
+(cf. \ref{identifier-scoping-and-open} and \ref{qualified-name}) the
+{\tt open} directive loads in the current name resolution (scoping)
+environment the definitions of the compilation unit named in the {\tt
+  open} directive. This prevents the user from having to explicitly
+qualify definitions of this unit by the ``{\tt\#}''
+notation. Definitions imported by the directive hide (``mask'') those
+wearing the same name already defined in the current compilation unit
+from the point the directive appears. Remember that it is however
+possible to recover the hidden definitions, using the ``{\tt\#}''
+notation without compilation unit name.
+
+Note that the {\tt open} directive implicitly implies the {\tt use}
+directive. This means that it is not useful to add a {\tt use}
+together with an {\tt open} directive.
+
+{\scriptsize
+\begin{lstlisting}
+open "sets";;
+\end{lstlisting}
+}This directive loads the definitions of the compilation unit
+``sets.fo'' in the current name resolution (scoping) environment.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{The {\tt coq\_require} directive}
+\index{directive!coq\_require}
+Some source files of a development may be directly written in {\coq} to
+provide external definitions (detailed further in
+\ref{interfacing-other-languages}) to import and use in the % [EJ] Reference bizarre, 9.0.5, structure a revoir
+{\focal} source code. In this case, the {\coq} code generated for the
+{\focal} source code must be aware of the need to import the external
+definitions from the manually written {\coq} file. For this reason, the
+{\focal} source must explicitly indicate by the {\tt coq\_require}
+directive that it makes references to definitions hosted in this
+{\coq} source file. For example, the file ``wellfounded.fcl'' of the
+standard library needs ``wellfounded\_externals.vo'' (the compiled version of
+``wellfounded\_externals.v'') and signals this
+fact in its early lines of code:
+
+{\scriptsize
+\begin{lstlisting}
+...
+open "basics";;
+open "sets_orders";;
+coq_require "wellfounded_externals";;
+...
+\end{lstlisting}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Properties, theorems and proofs}
+\label{properties-theorems-proofs}
+\index{theorem}
+\index{property}
+
+Properties are first order logic propositions and theorems are
+properties with their proofs. We will study here first the structure
+of logical expressions used to express the statements, show properties
+and theorems forms and shortly present the 3 available ways to write
+proofs.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Logical expressions}
+\label{logical-expressions}
+\index{expression!logical}
+Logical expressions are those used to write first order logic
+formulas.
+\begin{syn}
+\nt{logical-exp} \is
+     \tok{all} \reps{\nt{lident}} \tok{in} \nt{type-exp}
+     \tok{,} \nt{logical-exp}
+\alt \tok{ex} \reps{\nt{lident}} \tok{in} \nt{type-exp}
+     \tok{,} \nt{logical-exp}
+\alt \nt{logical-exp} \tok{->} \nt{logical-exp}
+\alt \nt{logical-exp} \tok{<->} \nt{logical-exp}
+\alt \nt{logical-exp} \tok{/\backslash} \nt{logical-exp}
+\alt \nt{logical-exp} \tok{\backslash/} \nt{logical-exp}
+\alt \tok{\tilde} \nt{logical-exp}
+\alt \nt{exp}
+\alt \tok{(} \nt{logical-exp} \tok{)}
+\end{syn}
+
+
+ Logical expressions contain the usual logical connectors ``imply''
+($\Rightarrow$), ``and'' ($\wedge$), ``or'' ($\vee$), ``there exists''
+($\exists$), ``for all'' ($\forall$), ``is equivalent''
+($\Leftrightarrow$) and ``not'' ($\neg$). Moreover, logical
+expressions embed the {\focal} expressions used in computational
+methods (i.e. identifiers, conditionals, application, \ldots). This
+allows to have connected propositions using the previously defined
+functions and species methods.
+
+{\scriptsize
+\begin{lstlisting}
+species S ... =
+  signature gt : Self -> Self -> bool ;  (* Greater than... *)
+  signature geq : Self -> Self -> bool ;  (* Greater or equal... *)
+  signature equal : Self -> Self -> bool ;  (* Equal to... *)
+  signature different : Self -> Self -> bool ;  (* Different of... *)
+
+  property gt_is_lt : all x y in Self,
+    (!gt (x, y) -> (!geq (x, y) /\ !different(x, y)))
+    /\
+    (!geq (x, y) -> (!gt (x, y) \/ !equal(x, y))) ;
+end ;;
+\end{lstlisting}}
+
+Since  propositions in logical expressions are truth values, this
+obviously imply that the arbitrary expressions used between connectors
+must have type {\tt bool}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Properties}
+A property is  a logical expression bound to an identifier. Its
+form is the name of the property, a colon character (``:'') and the
+logical expression being its statement. See the example given in
+\ref{logical-expressions}.
+\begin{syn}
+\nt{property} \is
+  \tok{property} \nt{lident} \tok{:} \nt{logical-exp}
+\end{syn}
+
+% \begin{syntax}
+% \syntaxclass{Properties:}
+% property & ::= & \terminal{property}\ lident\ \terminal{:}\ logical\_expr
+% \end{syntax}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Proofs}
+\label{proof-short-intro}
+{\focal} currently provides 3 ways to write proofs. We only give here a
+simple description of these 3 means without going deeply in the
+technical mechanisms since this problem will be especially addressed
+in section \ref{making-proofs} and \ref{coq-proofs}. % [EJ] Seconde reference mal formee (9.0.6)
+
+\begin{compact-itemize}
+\item {\bf Consider the proof as ``assumed''}. This way is the
+  simplest but also the weakest one since it consists in saying that
+  no proof is given and the system must accept the statement as an axiom.
+
+  {\scriptsize
+\begin{lstlisting}
+species S =
+  representation = int;
+  let equal = (=Ox);
+  theorem symmetry : all x y in Self, equal (x, y) -> equal (y, x)
+  proof = assumed
+    (* Machine integers equality admitted to be symmetric  *) ;
+  ...
+end ;;
+\end{lstlisting}
+% La ligne let equal = (=Ox); est difficile a parser !
+}
+
+Although such a proof can introduce inconsistencies if the
+``theorem'' is not a tautology and thus decrease confidence in the
+correctness of the {\focal} program, there are several cases where
+using this keyword may help.
+  \begin{compact-itemize}
+      \item The first case is simply that the developer doesn't know
+        (yet ?) how to make the proof, doesn't have time yet to write
+        it, or is not interested in proofs but still wants his program to
+        compile to get the executable code.
+
+      \item Second case deals with import of external code, i.e. code
+        not written in {\focal} and considered as external. In this
+        case, since the imported code does not fit the {\focal} model
+        and more accurately, does not have formal properties, it is
+        impossible to make any proof on {\focal}'s side based on the
+        structure of this code and its non-existing implementation
+        properties. In other terms, things coming outside {\focal}
+        universe can not be modeled by {\focal}. The developer can only
+        import them providing a binding is given and must trust them.
+
+      \item Last case addresses ``well-known'' mathematical properties
+        that do not actually hold in computers since they are finite
+        machines, working on bounded arithmetics. The most obvious
+        example is the fact that since an integer is coded on a
+        machine word (e.g. $32$-bit values), the
+        mathematical property $\forall x \in \mbox{\cal{N}}, x + 1 >
+        x$ does not hold anymore.
+%%% I suppose that readers know about overflow. Th.
+%  In effect, taking a 32 bits-long
+%         machine word, taking $x = 2^{32} = 4294967296$, the binary
+%         configuration of $x$ is all 32 bits equal to 1. Then adding 1
+%         one more time would give a binary configuration with the
+%         33$^{\textnormal{th}}$ bit (the most significant bit) equal to
+%         1 and all the 32 others equal to 0. Since the machine word
+%         only contain 32 bits, the most significant of our computation
+%         is dropped, leaving only 32 bits equal to 0. And this binary
+%         configuration is the integer $0$. Hence we get a case where $x
+%         + 1 = 0 < x$.
+
+%         \vspace{0.1cm}
+%         \begin{center}
+%         {\scriptsize
+%         \begin{tabular}[h]{|c|c||c|c|c|c|c|c|c|}
+%           \hline
+%           & & 1 & 1 & 1 & \ldots & 1 & 1 & 1 \\
+%           \hline
+%           + & & 0 & 0 & 0 & \ldots & 0 & 0 & 1 \\
+%           \hline
+%           \hline
+%           = & {\color{red}1} & 0 & 0 & 0 & \ldots & 0 & 0 & 0 \\
+%           \hline
+%           = &  & 0 & 0 & 0 & \ldots & 0 & 0 & 0 \\
+%           \hline
+%         \end{tabular}
+%         }
+%         \end{center}
+
+        \vspace{0.1cm}
+        However, conceptually, except when dealing with boundaries,
+        this property holds and we need to achieve further proofs. For
+        this reason, assuming that the proof holds is legitimate, if the
+        developer is able to guarantee that the integer computations
+        never overflow. If he cannot guarantee non-overflow, then this
+        is a true problem of specification or design which should be
+        re-considered.
+    \end{compact-itemize}
+
+In any case,  we advice the reader to use
+the test tool (or another mean) to comfort the confidence in the
+statement of the theorem, when such statement is admitted.
+
+\item {\bf Write an automated proof script}.  {\focal} provides a
+  syntax, the {\focal} Proof Language, to split proofs into steps that
+  may be proved by the {\zenon} theorem prover. Without entering deeply
+  into the syntax further described in chapter \ref{making-proofs},
+  the main features are the following. The user may state hypotheses,
+  demonstrate subgoals that will serve as lemmas for a higher level
+  goal and may give hints about definitions or declarations of
+  methods. Then {\zenon} tries to automatically guess a proof of this
+  goal, then tries to prove those lemmas, hence building a proof tree
+  until the top goal (i.e. the theorem) is proved. Here is an
+  example of such a proof.
+
+ {\scriptsize
+\begin{lstlisting}
+ theorem zero_is_unique : all o in Self,
+  (all x in Self, !equal (x, !plus (x, o))) -> !equal (o, !zero)
+  proof =
+         <1>1 assume o in Self,
+              assume H1: all x in Self, !equal (x, !plus (x, o)),
+              prove !equal (o, !zero)
+             <2>1 prove !equal (!zero, !plus (!zero, o))
+                by hypothesis H1
+             <2>3 prove !equal (o, !zero)
+                by step <2>1
+                property zero_is_neutral, equal_transitive, equal_symmetric
+             <2>4 conclude
+        <1>2 conclude
+  ;
+\end{lstlisting}}
+
+  \item {\bf Write a {\coq} script} This way is the most difficult
+     since it means to directly write {\coq} code. It
+    requires the understanding of both {\coq} and the mapping the
+    {\focal} compiler does to generate {\coq} code from {\focal} source
+    code. The section \ref{focal-coq-mapping} describes % [EJ] Reference mal formee
+     how {\focal} definitions are mapped onto
+    {\coq} names.
+
+The {\coq} script is introduced by the keywords {\tt coq proof} and
+surrounded by {\tt \{*} and {\tt *\}}.
+% But,
+%     anyway, such a way to make proofs require some skills in {\coq} and we try
+%     as far as possible to provide, in the {\focal} framework, enough
+%     powerful tools to prevent the user to directly deal with
+%     {\coq} proofs.
+Below follows an example of such a proof.
+
+{\scriptsize
+\begin{lstlisting}
+theorem int_minus_plus: all x y z in int,
+  (* x - y = z -> x = y + z *)
+  #base_eq (#int_minus (x, y), z) -> #base_eq (x, #int_plus (y, z))
+  proof =
+    coq proof {*
+      intros x y z; unfold int_plus, int_minus, base_eq,
+        syntactic_equal in |- *;
+      intros H;
+      unfold bi__int_minus;
+      apply EQ_base_eq; rewrite <- (Zplus_minus y x);
+      apply Zplus_eq_compat; trivial; apply decidable.
+      apply Z_eq_dec. assumption.
+      Qed.
+    *} ;;
+\end{lstlisting}}
+\end{compact-itemize}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Theorems}
+Now we know how to write a logical statement and how
+to write a proof, the structure of a theorem appears simple since it
+contains both the statement and the proof inside the same
+construct. The theorem is introduced by the keyword {\tt theorem} and
+the proof by the keyword {\tt proof} followed by an equal character
+(``='').
+\begin{syn}
+\nt{theorem} \is
+  \tok{theorem} \nt{lident} \tok{:} \nt{logical-exp}
+  \tok{proof~=} \nt{proof}
+\end{syn}
+
+% \begin{syntax}
+% \syntaxclass{Theorems:}
+% theorem & ::= & \terminal{theorem}\ lident\ \terminal{:}\ logical\_expr
+%                 \ \terminal{proof =}\ proof
+% \end{syntax}
+
+\noindent For instance:
+
+{\scriptsize
+\begin{lstlisting}
+species Meet_semi_lattice inherits Setoid =
+  ...
+  theorem inf_right_substitution_rule : all x y z in Self,
+     equal(y, z) -> equal(!inf(x, y), !inf(x, z))
+     proof =
+       by property
+          inf_left_substitution_rule,
+          inf_commutes,
+          equal_transitive ;
+  ...
+end ;;
+\end{lstlisting}}
+The kind of proof used here is written in {\focal} Proof Language and
+must not be a matter of understanding at this point since this
+particular point will be addressed with more details in chapter
+\ref{making-proofs}.
+
+Notice that theorems can be hosted in a species or can be
+toplevel-theorems.
+Unlike theorems, properties cannot appear at
+toplevel since there is no way to inherit at toplevel, hence no
+way to give a proof after the property declaration in a ``parent''.

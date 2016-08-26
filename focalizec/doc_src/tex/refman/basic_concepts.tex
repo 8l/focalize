@@ -1,0 +1,361 @@
+
+As stated in section \ref{glimpse}, the {\focal} language is designed
+to build an application step by step, going from very abstract
+specifications to the concrete implementation through a hierarchy of
+structures. At first sight  species seem quite similar to
+classes in an Object-Oriented context.  {\em However, despite of
+inheritance and late-binding features, {\focal} is definitively not an
+Object-Oriented language as C++, Java, etc.  are.}
+
+ In the following we  focus on the basic concepts underlying a
+{\focal} development, that is:
+\begin{compact-itemize}
+\item Top-level definitions
+  \item Species
+  \item Collections
+  \item Parametrisation
+  \item Inheritance
+  \item Late-binding
+\end{compact-itemize}
+To ensure that this part can be read independently of the section
+\ref{glimpse}, we duplicate some explanations.
+
+\section{Basic concepts}
+
+\subsection{Top-level Definitions}
+\label{toplevel-def}
+\index{toplevel}
+We call {\bf toplevel-definition} (just one word) a definition which
+appears outside species and collections. Such definitions can only be:
+\begin{compact-itemize}
+  \item Species
+  \item collections,
+  \item type definitions,
+  \item general theorems (not depending on a species)
+  \item general functions (not depending on a species),
+  \item expressions to be directly evaluated (but there is no way to
+    bind their value to an identifier).
+\end{compact-itemize}
+Any toplevel-definition is terminated by a double semi-character
+(``;;'').\index{;;}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Species}
+\label{species-intro}
+{\bf Species} \index{species} are the nodes of the {\focal}
+hierarchy. A species is a sequence of {\bf methods} \index{method} or
+{\bf fields}\index{field}, each one being terminated by a semi
+character (``;'')\index{;;}. Hence, a basic species looks like:
+{\scriptsize
+\begin{lstlisting}
+  species Name =
+    meth1 ;
+    meth2 ;
+  end ;;
+\end{lstlisting}
+}
+
+Species names are always {\bf capitalised}. As any
+toplevel-definition, a species ends with a double semi-character
+(``;;'').\index{;;} There are several kinds of methods:
+\smallskip
+\begin{compact-itemize}
+  \medskip
+  \label{rep-is-method}
+\item The {\bf representation}\index{representation}. It
+  defines\index{representation!defined} the type of the entities
+  manipulated in the species and is a kind of alias type (see section
+  \ref{representation-type}). The representation can be a type
+  variable and then is said to be ``not yet defined'' or ``only
+  declared'' and is not explicitly introduced
+  \index{representation!declared}.  It can be bound to a type defined
+  by a more complex type expression possibly containing type variables
+  (introduced via collection parameters). Either, this type value is
+  obtained by inheritance or is introduced by the keyword {\tt
+    representation}\index{representation} followed by {\tt =} followed
+  by a type expression.  Ultimately to get a {\em complete} (fully
+  defined) species, the representation must be a fully instantiated
+  type (directly or by \ref{inheritance}).
+
+
+In the context of a species, the representation is denoted by {\tt Self}.
+
+%  For instance, we can define a species to manipulate couples of native integers  as:
+%     {\scriptsize
+%       \begin{lstlisting}
+% species IntCouple =
+%   representation = (int * int) ;
+% let element = (1,1);
+% let increment (x,y) : self -> self  = (x+1, y+1);
+% end ;;
+%       \end{lstlisting}
+%     }
+Note that a representation is never a polymorphic type. When it is
+only declared, it is a type variable, which can receive only one
+instantiation. In other words, this type variable is not universally
+quantified, as are the type variables of polymorphic types.
+
+\item {\bf Signatures}\index{signature}. They introduce names of
+  constants and functions, uniquely providing their type as a type
+  expression. A signature
+  begins with the keyword {\tt signature} followed by the introduced
+  name followed by {\tt :} followed by a type expression. For
+  instance:
+{\scriptsize
+      \begin{lstlisting}
+ species IntStack =
+   signature push : int -> Self -> Self ;
+ end ;;
+      \end{lstlisting}
+    }
+
+  As we saw above, {\tt Self} represents the representation (thus a
+  type) of the current species. Hence an operation pushing an integer
+  onto a stack takes as parameter the integer to push, the stack on
+  which to push and give back a new stack, that is, an entity of type
+  {\tt Self}.
+
+  \medskip
+
+  \item {\bf Functions}\index{function}.  They are implementations of
+    signatures, providing effective code. A function is
+    introduced by the {\tt let} keyword followed by the name followed
+    by {\tt =} followed by a definition, which is similar to ML
+    definitions. Recursive functions are
+    introduced by {\tt let rec} to make explicit the recursivity.
+
+    {\scriptsize
+      \begin{lstlisting}
+species IntStack =
+  representation = int list ;
+  let push (v in int, s in Self) = v :: s ;
+end ;;
+      \end{lstlisting}
+    }
+
+    Function parameters can be entities (that is, values) of the
+    species itself (which type is the representation, thus denoted by
+    {\tt Self}), entities of known collections, values of known types.
+
+    Functions can use in their body other methods of the species,
+    toplevel-definitions of functions, methods of collections
+    (described further in \ref{collection}), or methods of
+    collections parameters (see \ref{collection-parameter}).
+
+    \label{idea-fun-using-sig}
+    When we say ``other methods of the species'', this includes
+    functions only introduced by their
+    signatures. This means that it is possible to use something only
+    declared, without yet effective implementation. We will address
+    this point later in detail in section \ref{late-binding}.
+
+    \smallskip
+    Although {\focal} is a functional language, function application
+    must always be total. This means that any function call must be
+    provided all the effective arguments of the function. As
+    previously
+    described  in the core syntax (cf. \ref{function-application}),
+    function application is ``à la C'', that is with arguments comma
+    separated and enclosed by parentheses.
+
+  \medskip
+\item {\bf Properties}\index{property}. They are first order
+  formulae containing names already introduced. When stating a
+  property, the proof that it holds is not yet provided (but will have
+  to be ultimately  provided). A property can be viewed as a declaration.
+
+ {\scriptsize
+      \begin{lstlisting}
+species IntStack =
+  ...
+  property push_returns_non_empty :
+    all v in int, all s in Self, push (v, s) -> ~ is_empty (s) ;
+end ;;
+      \end{lstlisting}
+    }
+
+
+    Proofs\index{proof!delayed} of properties can be {\bf delayed},
+    that is,  done afterwards
+    using a {\tt proof} field in a species. The way to give proofs will
+    be seen further.
+
+    {\scriptsize
+      \begin{lstlisting}
+species IntStack2 =
+  inherit IntStack;
+  proof of push_returns_non_empty = ... ;
+end ;;
+      \end{lstlisting}
+    }
+
+  \medskip
+  \item {\bf Theorems}\index{theorem}. They are properties with their
+    proofs. In fact, when defining a property, we only give the
+    statement of a theorem, leaving its proof for later. A theorem can
+    be viewed as a definition.
+
+    {\scriptsize
+      \begin{lstlisting}
+species IntStack =
+  ...
+  theorem push_returns_non_empty :
+    all v in int, all s in Self, push (v, s) -> ~ is_empty
+    (s)
+  proof = ... ;
+end ;;
+      \end{lstlisting}
+    }
+
+\end{compact-itemize}
+
+\label{no-polymorphism-for-methods}
+One important restriction on the type of the methods is that it cannot
+be polymorphic\index{polymorphism}. However, {\focal} provides another
+mechanism to circumvent this restriction, the
+parametrisation\index{parametrisation} as explained further
+(cf. \ref{parametrisation}).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Complete species}
+ A species is said {\em complete}\index{species!complete} if all
+its methods are {\em defined}, i.e. have an implementation. In other
+words this means that there is no more methods only {\em
+ declared}. This notion implies that:
+\begin{compact-itemize}
+  \item The representation has been associated with a type definition.
+  \item Every declaration is associated to a definition.
+  \item A proof is given for every property.
+\end{compact-itemize}
+
+\smallskip
+Obviously, it is possible to build a species without signatures and
+properties, only providing functions and theorems directly. In this
+case, if the representation is also defined, then the obtained species
+is trivially complete.
+
+The important point for a species to be complete is that it can be
+turned into effective executable {\ocaml} code and effective checkable
+{\coq} code, since all the components are known.
+
+\medskip
+{\bf Important}: Although we said that only a complete species can
+lead to effective executable code, of course species even not complete
+are compiled ! This means that you do not need to have a complete
+species to compile your source code ! It is very common to have
+species not complete in source files since programs are written in a
+modular fashion, in several files. Moreover, a library may provide
+species with methods not defined, leaving the user the freedom to
+chose an effective implementation for some algorithms.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Interfaces}
+\label{interface}
+\index{interface}
+The {\bf interface} of a species is the list of the declarations of
+its methods. It corresponds to the end-user point of view, who wants
+to know which functions he can use, and which properties these
+functions have, but doesn't care about the details of the
+implementation.
+
+\smallskip
+
+The interface of a species is obtained by keeping the
+signatures and properties and retaining only the signatures of the let
+methods and the statement of the theorems. The representation is
+hidden thus abstract (only unifiable with itself).  Hence, getting the
+interface of a species can roughly be seen as erasing the
+representation, turning the functions into signatures and the theorems
+into properties.
+
+\smallskip
+
+While this abstraction is easy within programming languages, it is not
+always possible when dealing with proofs and properties. Such
+problematic species are rejected by {\focal} and will be described
+later in \ref{dependencies}.
+
+An interface has a {\bf  name}, {\em which is the name of the underlying
+species}. There should be no confusion between species names and
+interface names as interface names are only used to declare formal
+collection parameters (see section \ref{collection-parameter}) and to
+apply methods of collection parameters.
+
+
+
+\subsection{Collections}
+\label{collection}
+\index{collection}
+
+A {\bf collection} is a kind of ``grey box'', built from a {\em
+complete} species by abstraction of the representation. A collection
+has exactly the same sequence of methods than the complete species
+underlying it, apart the representation which is hidden.
+Note that creating a collection from it is the
+only way to turn methods of a complete species into executable
+code. This point is emphasised by the syntax:
+
+{\tt collection} {\em name-collection} = {\tt implement} {\em
+name-species} {\tt ;} {\tt end}
+
+The interface of a collection is the one of the
+complete species it implements. The interface $I_1$ of a collection
+$C_1$ is {\em compatible} with an interface $I_2$ if $I_1$ contains
+ all the components of $I_2$.
+
+\medskip
+
+Thus, implementing a complete species creates a collection, which is a
+kind of abstract data-type. This especially
+means that entities of the collection cannot be directly
+created or manipulated as their type is not accessible.  So they can
+only  be manipulated by the methods of the {\em implemented} species.
+
+
+{\scriptsize
+\begin{lstlisting}
+species Full =
+  rep = int ;
+  let create_random in Self = random_foc#random_int (42) ;
+  let double (x in Self) = x + x ;
+  let print (x in Self) = print_int (x) ;
+end ;;
+
+collection MyFull_Instance =
+  implement Full;
+end ;;
+
+let v = Full.create_random ;;
+Full.print (v) ;;
+let dv = Full.double (v) ;;
+Full.print (dv) ;;
+\end{lstlisting}
+}
+
+In this example, we define a complete species {\tt Full}. Then
+we  create the collection
+{\tt MyFull\_Instance}. And we use methods of this collection to
+create entities of this collection. We print the result of the
+evaluation of the top-level definitions of {\tt v} and {\tt dv}.
+
+\smallskip
+
+{\em  Note that two collections created from a same species are
+not type-compatible since their representation is abstracted making
+impossible to ensure a type equivalence.}
+
+\smallskip
+As a conclusion, collections are the only way to get something that
+can be executed since they are the terminal items of a
+{\focal} development hierarchy. Since they are ``terminal'', this also
+means that no method can be added to a collection. Moreover, a
+collection may not be used to create a new species by inheritance (as
+explained in the next section).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

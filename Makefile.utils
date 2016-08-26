@@ -1,0 +1,45 @@
+# ************************************************************************** #
+#                                                                            #
+#                        FoCaLiZe compiler                                   #
+#                                                                            #
+#            François Pessaux                                                #
+#            Pierre Weis                                                     #
+#            Damien Doligez                                                  #
+#                                                                            #
+#                               LIP6  --  INRIA Rocquencourt                 #
+#                                                                            #
+#  Copyright 2007 - ... LIP6 and INRIA                                       #
+#            2012 - ... ENSTA ParisTech                                      #
+#  Distributed only by permission.                                           #
+#                                                                            #
+# ************************************************************************** #
+
+# Basic Unix commands
+CD=cd
+CP=cp -f
+CVS=cvs
+LN=ln -sf
+MAKE=make
+MKDIR=mkdir -p
+MV=mv -f
+RM=rm -rf
+SSH=ssh
+SCP=scp
+TOUCH=touch
+CHMODGRW=chmod ug+rw
+CHMOD=chmod
+
+# Tex related processors. Assumes that LaTeX was found.
+GS=gs
+MAKEINDEX=makeindex
+DVIPS=dvips
+DVIPDF=dvipdf
+
+# XML processing
+XSLTPROC=xsltproc
+
+# Htmlc compiler
+HTMLC_COMPILER=htmlc
+HTMLC_COMP_FLAGS =
+HTMLC_INCLUDES =
+HTMLC=$(HTMLC_COMPILER) $(HTMLC_COMP_FLAGS) $(HTMLC_INCLUDES)

@@ -1,0 +1,129 @@
+\def\month{June}
+\def\year{2016}
+\def\focalizeversion{\sf 0.9.1}
+
+\def\focalizeversiondate{\sf {\month} {\year}}
+
+\newenvironment{citemize}{\begin{list}{$\bullet$}{\itemsep 0pt \topsep 5pt}}{\end{list}}
+
+\def\bbbn{{\rm I\!N}}
+
+\def\url#1{{#1}}
+\def\email#1{{\tt#1}}
+\def\ocaml{{\sf OCaml}}
+\def\moca{{\sf Moca}}
+\def\focal{{\sf FoCaLiZe}}
+\def\coq{{\sf Coq}}
+\def\cime{{\sf CiME}}
+\def\zenon{{\sf Zenon}}
+\def\zvtov{{\sf zvtov}}
+\def\focdoc{{\sf FoCaLiZeDoc}}
+\def\dotty{{\sf dotty}}
+\def\graphviz{{\sf graphviz}}
+\def\emacs{{\sf emacs}}
+\def\cygwin{{\sf Cygwin}}
+\def\xsltproc{{\sf xsltproc}}
+\def\terminal#1{\mbox{\tt\color{red}#1}}
+\def\foc{{\sf Foc}}
+\def\oldfocal{{\sf Focal}}
+\def\focalizec{{\sf focalizec}}
+
+\def\backslash{{\char92}}
+\def\chapeau{{\char94}}
+\def\vertical{{\char124}}
+\def\tilde{{\char126}}
+
+%% Pour afficher les listings de manière plus sexy... ;)
+\lstdefinelanguage{FoCaLiZe}
+  {morekeywords={alias, all, and, as, assume, assumed, begin, by, caml,
+      collection, coq, coq_require, definition, else, end,
+      ex, external, false, function, hypothesis, if, in,
+      inherit, internal, implement, is, let, lexicographic,
+      local, logical, match, measure, not, notation, of, open,
+      on, or, order, proof, prop, property, prove, qed, rec,
+      representation, Self, signature, species, step,
+      structural, termination, then, theorem, true, type, use,
+      with, conclude},
+    otherkeywords={->, :, /\\, \\/, =>, \~, \#, ;, \&, \|},
+    sensitive=false,
+    morecomment=[n]{(*}{*)},  %% Autoriser les nested comments
+    morecomment=[n]{(**}{*)}, %% Autoriser les nested comments
+    morestring=[b]",
+  }
+
+\lstset{
+  language=FoCaLiZe, tabsize=2, frame=single, breaklines=true,
+  basicstyle=\ttfamily, framexleftmargin=1mm, xleftmargin=1mm
+}
+
+% For syntax definitions
+% \begin{syntax}
+% left-hand side & ::=  & right-hand side & comment \\
+%                & \alt & more right-hand side & more comment
+% \end{syntax}
+% Use \syntaxclass{Foo} to insert a title line above a syntax definition.
+% Do not put \\ before \end{syntax} or \syntaxclass{...}
+% Use \begin{syntaxleft} ... \end{syntaxleft} to insert the title
+% lines to the left of the definitions.
+
+% \def\syntax{
+% \par\medskip\goodbreak\noindent
+% \bgroup
+% \let\\=\cr
+% \interlinepenalty=50            % discourage page breaks in a definition
+% \global\let\syntaxclass=\firstsyntaxclass
+% \if@twocolumn
+% \halign\bgroup~~$##$&\hfil${}##{}$&$##$~\hfil&##\hfil\cr
+% \else
+% \halign\bgroup\qquad\qquad$##$&\hfil${}##{}$&$##$\quad\hfil&##\hfil\cr
+% \fi
+% }
+% \def\endsyntax{\cr\egroup\egroup\par\medskip\noindent\ignorespaces}
+
+% \def\firstsyntaxclass#1{
+% \omit\hbox to 0pt{#1\hss}\cr
+% \global\let\syntaxclass=\nextsyntaxclass
+% }
+
+% \def\nextsyntaxclass#1{
+% \cr\noalign{\smallskip\penalty-100}\omit\hbox to 0pt{#1\hss}\cr
+% }
+
+% \def\syntaxleft{
+% \par\medskip\goodbreak\noindent
+% \bgroup
+% \let\\=\cr
+% \interlinepenalty=50            % discourage page breaks in a definition
+% \global\let\syntaxclass=\firstsyntaxclassleft
+% \if@twocolumn
+% \halign\bgroup\hfil$##$&\hfil${}##{}$&$##$~\hfil&##\hfil\cr
+% \else
+% \halign\bgroup\hfil$##$&\hfil${}##{}$&$##$\quad\hfil&##\hfil\cr
+% \fi
+% }
+% \let\endsyntaxleft=\endsyntax
+
+% \def\firstsyntaxclassleft#1{
+% $\hfilneg#1\quad\hfil$
+% \global\let\syntaxclass=\nextsyntaxclassleft
+% }
+
+% \def\nextsyntaxclassleft#1{
+% \cr\noalign{\smallskip\goodbreak}$\hfilneg#1\quad\hfil$
+% }
+
+\newenvironment{compact-itemize}{
+\begin{itemize}
+     \setlength{\itemsep}{1pt}
+     \setlength{\parskip}{0pt}
+     \setlength{\parsep}{0pt}}
+{\end{itemize}
+}
+
+\newenvironment{compact-enumerate}{
+\begin{enumerate}
+     \setlength{\itemsep}{1pt}
+     \setlength{\parskip}{0pt}
+     \setlength{\parsep}{0pt}}
+{\end{enumerate}
+}

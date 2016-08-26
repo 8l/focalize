@@ -1,0 +1,290 @@
+.TH FOCALIZEC
+
+.SH NAME
+.B focalizec
+\-\-  The FoCaLiZe compiler
+.UR http://FoCaLiZe.inria.fr/
+(http://FoCaLiZe.inria.fr/)
+.UE
+
+.SH VERSION
+Focalizec version 0.9.1.
+.SH SYNOPSIS
+.B focalizec
+.RI [ options ]\ [ source\ file ]
+.SH DESCRIPTION
+The 
+.B focalizec
+compiler is a compiler for the FoCaLiZe language. It takes a
+source file as input and compiles it to
+.B OCaml
+and/or pre-\fBCoq\fP
+source files, according to selected options. The default is to generate both
+target languages. During the compilation process, the compiler also generates
+a specific object file (with suffix \fI.fo\fP) for the sake of separate compilation.
+
+The generated
+.B OCaml
+code can directly be passed to the
+.B Objective Caml
+compiler to finally get an executable linking all the generated files
+of your FoCaLiZe development.
+
+The generated pre-\fBCoq\fP source files get suffix \fI.zv\fP. They must be
+processed by the
+.B Zenon
+automated theorem prover to get a pure
+.B Coq
+source file (with suffix \fI.v\fP).
+The FoCaLiZe specific command
+.B zvtov
+is specially devoted to this task.
+
+Hence, the generation process is the following:
+    file.fcl --
+.B focalizec
+--> file.ml and/or file.zv
+    file.ml --
+.B ocaml/ocamlopt ...
+--> executable program
+    file.zv --
+.B zvtov
+--> file.v
+    file.v --
+.B coqc
+--> file.vo
+
+.SH OPTIONS
+Options are :
+.TP
+.B -coq-version \<version\>
+Enables
+.B Coq
+code generation for a specific version. By default, the latest version of
+.B Coq
+supported by FoCaLiZe
+is assumed (at least 8.5pl1). Since
+.B Coq
+version 8.5, the -I option is replaced by the -Q one to specify the loadpath.
+.TP
+.B -dot-non-rec-dependencies \<dirname\>
+Dump non-let-rec dependencies of the species present in the compiled
+source file. The output format is suitable to be graphically displayed
+by
+.B dotty
+(free software available via the
+.B graphviz
+package). Each species will lead to a dotty file into the argument
+directory. Files are names by
+.I deps_
++ the source file base name (i.e. without path and suffix) + the
+species name + the suffix
+\fI.dot\fP.
+.TP
+.B --experimental
+Reserved for development purpose. Never use it, since invoking the compiler
+with this option may lead to unpredictable results.
+.TP
+.B -focalize-doc
+Generate documentation. Still experimental.
+.TP
+.B -i
+Print the interfaces of the species present in the compiled source
+file. Result is sent to the standard output.
+.TP
+.B \-I \<dirname\>
+Add the \<dirname\> directory to the path list where to search for
+compiled interfaces. Several
+.B -I
+options can be used. The search order is in the current directory first,
+second, in the standard library directory (unless the
+.B -no-stdlib-path
+option is used, see below), then in the directories specified by the
+.B -I
+options in their apparition order on the command line.
+.TP
+.B -impose-termination-proof
+Make termination proofs mandatory for recursive functions. If a
+recursive function doesn't have its termination proof, then the field
+will be considered as not fully defined and no collection will be
+possible based on the species hosting the function. Default is to
+disable this option: if a recursive function does not have any
+termination proof, a warning is printed during compilation when trying
+to make a collection from this species.
+.TP
+.B -methods-history-to-text \<dirname\>
+Dump the methods' inheritance history of the species present in the
+compiled FoCaLiZe files. The result is sent as plain text files into the
+\<dirname\> directory. For each method of each species a file is generated
+wearing the name made of
+.I history_
++ the source file base name (i.e. without path and suffix) +
+.I _
++ the hosting species name + the suffix
+\fI.txt\fP.
+.TP
+.B -no-ansi-escape
+Disable ANSI escape sequences in error messages. Default is to
+use bold, italic, underline fonts when reporting errors, to make
+the messages easier to read. This option removes all the text
+attributes and should be used if your terminal doesn't support ANSI
+escape sequences or when compiling under
+\fBemacs\fP.
+.TP
+.B -no-coq-code
+Disable the
+.B Coq
+code generation. Default is to generate Coq code.
+.TP
+.B -no-ocaml-code
+Disable the
+.B OCaml
+code generation. Default is to generate OCaml code.
+.TP
+.B -no-test-code
+Disable the test code generation.
+.TP
+.B -no-tests
+Disable the tests.
+.TP
+.B -no-stdlib-path
+Do not include the standard library installation directory in the
+library search path. Rarely useful and mostly dedicated to the
+.B FoCaLiZe
+compiler build process.
+.TP
+.B -ocaml-comp-mode
+Specify the OCaml compiler mode. Can be "byt" for bytecode compilation,
+"bin" for native code compilation, or "both" for bytecode
+and native code compilation.
+.TP
+.B -pmatch-err-as-warn
+Not fully working.
+.TP
+.B -pretty \<file\>
+Undocumented: mostly for debugging purpose. Pretty-print the parse tree
+of the
+.B FoCaLiZe
+file as a
+.B FoCaLiZe
+source into the argument file.
+.TP
+.B -raw-ast-dump
+Undocumented: mostly for debugging purpose. Print on stderr the raw AST
+structure after parsing stage.
+.TP
+.B -require-plugin \<plugin name\>
+Require application of plugin <plugin name> on the
+.B FoCaLize
+source file.
+.TP
+.B -scoped_pretty \<file\>
+Undocumented: mostly for debugging purpose. Pretty-print the parse tree
+of the
+.B FoCaLiZe
+file, once scoped, as a
+.B FoCaLiZe
+source into the file \<file\>.
+.TP
+.B -show-term-obls
+Print the termination proofs obligations to prove for recursive functions.
+.TP
+.B -sto
+Shortcut for the
+.B -show-term-obls
+option.
+.TP
+.B -stop-before-coq
+When
+.B Coq
+code generation is activated, stops the compilation process
+before passing the generated file to
+.B Coq.
+The produced file is ended by the suffix ".v".
+.TP
+.B -stop-before-zenon
+When
+.B Coq
+code generation is activated, stops the compilation process before
+passing the generated file to
+.B Zenon.
+The produced file is ended by the suffix ".zv".
+.TP
+.B -verbose
+Set the compiler verbose mode. The compiler generates the trace of
+steps and operations it performs. Mostly used for debugging purpose; for people
+interested in understanding the FoCaLiZe's compilation process, can also
+explain the elaboration of the model during the compilation.
+.TP
+.B \-v
+Print the
+.B focalizec
+version number.
+.TP
+.B \-version
+Print the
+.B focalizec
+full version (version, sub-version and release date).
+.TP
+.B --where
+Print the binaries and libraries installation directories.
+.TP
+.B \-zvtovopt "<options>"
+Set options to pass to the
+.B zvtov
+tool. This latter is anyway always called with options
+"-zenon (path to Zenon) -new" in head. It is possible to use this option to
+pass options to
+.B zenon
+but be careful of correctly quoting options to make sure they are interpreted
+by their respective recipient.
+
+For instance, telling
+.B zenon
+to change its maximum memory size can be done in the 3 equivalent ways
+
+   focalizec -zvtovopt '-zopt '\\''-max-size 2G'\\' foo.fcl
+
+   focalizec -zvtovopt "-zopt \\"-max-size 2G\\"" foo.fcl
+
+   focalizec -zvtovopt "-zopt '-max-size 2G'" foo.fcl
+.TP
+.B \-help
+Display this list of options.
+.TP
+.B \-\-help
+Display this list of options.
+
+.SH COPYRIGHT
+This program is free software, distributed under the licence found in
+the LICENSE file in the root directory of the distribution.
+
+.SH SEE ALSO
+.B zenon
+(1)
+.B zvtov
+(1)
+.B focalizedep
+(1)
+.B ocamlc
+(1)
+.B ocamlopt
+(1)
+.B coqc
+(1)
+
+The
+.B FoCaLiZe
+user's manual (http://FoCaLiZe.inria.fr/eng.htm)
+(french version at http://FoCaLiZe.inria.fr/fra.htm).
+
+.SH AUTHORS
+François Pessaux <Francois.Pessaux@ensta-paristech.fr>
+Pierre Weis <Pierre.Weis@inria.fr>
+.P
+This manual page was written for
+.B focalizec
+version 0.7.0.
+.P
+Laboratoire d'Informatique de l'université Paris 6,
+Institut National de Recherche en Informatique et en Automatique (2012)

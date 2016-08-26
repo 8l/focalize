@@ -1,0 +1,110 @@
+
+# Focalize 0.9.1
+################
+
+- Termination proofs by measure and by order.
+- Termination proofs (order/measure) now typechecked correctly.
+  Before, there was no verification on the expression used as order or measure,
+  and on the argument's type used.
+- Fixed exception not handled (turned in an error message) for decreasing
+  ident not a function argument in termination proofs.
+- Order relations on orders are not anymore called <0x, <=0x etc, but simply
+  <, <= etc.
+- Simplifications in the generated code for collections. Use of implicit
+  arguments in right number instead of full types/expression. Makes the
+  generated code shorter and more readable.
+- Don't require Zenon source code to be present in a zenon subfolder
+- Fixed bug in the parser causing collision between documentation comments
+  and delimited identifiers.
+- New Dedukti back-end as logical target language (in development). Only
+  active using the --experimental option.
+- Adapt to Coq >= 8.5.
+- Misc buf fixes (68, 69, 70, 71, 72, 73, 74, 75, 76).
+
+
+# Focalize 0.9.0
+################
+- Update to Caml 4.02.0
+- Update to Coq 8.4pl4
+- New contruct "final let" to prevent redefinition by inheritance
+- Script to transform FocDoc to HTML (fcd2html.sh)
+- Emacs mode (pretty basic)
+- Deep rewriting of dependencies computation code to fully compute *once* for
+  all the possible backends (OCaml, Coq)
+- Fixed code in dependencies computation.
+- Uniformization of names and code generation schemes between OCaml and Coq.
+- Lighter generated code (removed useless records and few other things)
+- Interface .mli file generated for OCaml code output
+- Ambiguous <-> now detected
+- Records available (not yet handled by Zenon)
+- Various cleanup
+- Building the compiler is lighter
+- Installation issues solved
+* Zenon
+  - String syntax
+  - Numerous bug fixed
+  - Installation issues solved
+  - Zenon is now in a separate GIT repository
+- Numerous bug fixed in both FoCaLiZe and Zenon (5, 6, 8, 13, 14, 18, 19, 25,
+  26, 27, 29, 31, 32, 42, 45, 46, 47, 49, 50, 53, 55, 56, 58, 59, 60, 61, 62,
+  64, 65, 66, 67)
+- Other things we don't remember :S
+
+
+# Focalize 0.8.0
+################
+- Update to Caml 4.0
+- Update to Coq 8.4, compatibility with older versions up to 8.1.
+- Foreign languages reserved keywords renammed on the fly to prevent
+  conflicts.
+- Zenon really smarter (induction via by type).
+- Integration of Focalizetest
+- No more Caml & Coq included in the distribution.
+- Configuration & build stuff revised and simplified.
+- Handling of weakly polymorphic type variable (ML _'a).
+- Fixed order of -I options sent to Coq.
+- More theorems in the standard library to deal with equality and
+  comparisons on int's.
+- Replacement of "assumed" proofs by real Coq proofs in the standard
+  library.
+- Tutorial on proofs.
+(- RPM build system. -- not fully operational)
+- Revisided documentation to get up-to-date.
+- Various Coq code bugs fixed.
+- Termination proofs on structurally recursive functions.
+- Support for syntax for termination proofs other than structural (partial).
+- Syntactic restrictions relaxed.
+- Other things we don't remember :S
+
+
+# Focalize 0.7.0
+################
+Ghost version, minor and major updates and bug fixes, never officially
+released. All changes now included in 0.8.0 version.
+
+
+# Focalize 0.6.0
+################
+- Inductive proof on data structures.
+- Update Caml to 3.11.1
+- Update Camlp5 to 5.12
+- Use Coq8.1pl4
+
+
+# Focalize 0.2.0
+################
+- Lexing
+  Comments starting with a line (more than 3) * characters are accepted.
+
+
+# 2009-02-??
+############
+# Focalize 0.1.0
+Initial distribution
+
+
+# 2009-02-13
+############
+# Focalize 0.1.rc0
+First release candidate.
+

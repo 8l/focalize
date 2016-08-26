@@ -1,0 +1,1059 @@
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unable to find file '$name$' in the search path.}
+
+{\em Description}: The source file made reference to a {\focal}
+compilation unit
+$name$ (by the {\tt open} or {\tt use} directives, or by explicit
+qualification with the ``\#'' notation) but the related
+{\focal} file was not found in the current libraries search
+path.
+
+{\em Hints}: Locate in which directory the missing  file is
+and add this directory to the libraries search path with the {\tt -I}
+compiler option.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Invalid or corrupted compilation unit '$name$'. May be it
+  was compiled with another version of the compiler.}
+{\em Description}: The source file made reference to a {\focal}
+compilation unit
+$name$ (by the {\tt open} or {\tt use} directives, or by explicit
+qualification with the ``\#'' notation but the related
+{\focal}  file was found with an incorrect format.
+
+{\em Hints}: May be the compilation unit was compiled with another
+version of {\focal} or was mangled and you must compile it again with
+your current version.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Invalid file extension for '$name$'.}
+{\em Description}: The {\focal} compiler expects compilation units to be
+ended by the suffix ``.fcl'', ``.ml'', ``.mli'', ``.zv''or ``.v''. If
+the submitted input file doesn't end by one of these suffixes, this
+error message arises with the name, $name$ of the involved file.
+
+{\em Hints}: Change the extension of the input file name or ensure the
+submitted input file name is the correct one.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{System error - $sysmsg$.}
+{\em Description}: During the compilation process an error related to
+the operating system occurred (I/O error, permission error, file-system
+error, \ldots). The original message $sysmsg$ of the system explaining
+the problem follows the {\focal}'s message.
+
+{\em Hints}: Consult the original message of the system and get an
+appropriate solution depending on this message.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Invalid OCaml compiler kind "$string$" for option -ocaml-comp-mode. Must be "byt", "bin" or "both".}
+{\em Description}: By default, if some {\ocaml} code was generated, the
+{\focal} compiler sends the generated code to the {\ocaml} compiler. The
+default compilation mode is bytecode production. It is possible to
+select the native code production using the option {\tt -ocaml-comp-mode}
+followed by the string ``bin'' or to select both code production modes
+by the string ``both''. The argument string ``byt'' is not required
+since it is the default mode. Any other string is invalid and leads to
+the present error message.
+
+{\em Hints}: Select ``byt'', ``bin'' or ``both'' as argument to the
+{\tt -ocaml-comp-mode} option.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{No input file. {\focalizec} is cowardly giving up...}
+{\em Description}: The {\focal} compiler needs one input file to
+compile. If none is supplied, this error message arises.
+
+{\em Hints}: Add the input source file to compile on the command
+line.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Lexical error $str$}
+{\em Description}: In the currently submitted source file, a sequence
+of characters is not recognised as legal according to the
+{\focal} programming language legal words structure. The involved
+character $str$ follows in the error message.
+
+{\em Hints}: Change the source code at the indicated location.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Syntax error}
+{\em Description}: In the currently submitted source file, a phrase of
+the program doesn't follow {\focal}'s syntax.
+
+{\em Hints}: Change the source code at the indicated location. It
+sometimes happens that the location gets fuzzy due to the parsing
+process. If the error is not immediate to you, explore the neighbours of
+ the specified location. If you still can't find out the error,
+have the following emergency process: comment your code and
+incrementally uncomment it to find the point where the error appears
+without having to search in the whole file. Once the error appears,
+have a look at the part of code you uncommented since the previous
+successful compilation and try to guess the syntactic cause.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unclear syntax error $msg$.}
+{\em Description}: An error occurred during the syntactic analysis but
+was not reported to be due to a syntax non-compliance. This error is
+not clearly identified and this message is displayed as post-mortem
+report with the exception $msg$ that caused the error.
+
+{\em Hints}: None
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Compilation unit '$m$' was not declared as "use"}
+{\em Description}: It not possible to use a qualified notation for a
+compilation unit name (i.e. using an entity from this compilation unit
+by explicitly specifying the unit with the ``\#''-notation) before this
+compilation unit is declared ``use'' or ``open''. This error message
+indicates the location where an identifier refers to a compilation
+unit that was not qualified either by the {\tt use} or {\tt open}
+directive. Note that the {\tt open} directive implicitly implies
+{\tt use}.
+
+{\em Hints}: Use the {\tt use} directive on the compilation detected
+unit.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Parameterised species  expected $n_1$ arguments but
+  was provided $n_2$.}
+{\em Description}: A species expression (used in species parameter
+expression or {\tt inherit} clause) applies a species with $n_1$
+argument(s) although its definition declared it as using $n_2$
+argument(s).
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Non-logical let must not bind '$ident$' to a property.}
+{\em Description}: A {\tt let} construct (not a {\tt logical let})
+attempts to bind the identifier $ident$ to a logical expression
+although it can only bind it to a computational expression.
+
+{\em Hints}: Source program to fix. May be the {\tt let} should be
+turned into a {\tt logical let} if the body of the binding is really a
+logical expression.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Delayed termination proof refers to an unknown method
+  '$ident$' of the species.}
+{\em Description}: A {\tt proof of} clause was found in a species for
+the property $ident$ but this property was not found in the species.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Ambiguous logical expression. Add explicit parentheses to
+  associate the $side$ argument of the \terminal{/\backslash} properly.}
+{\em Description}: A logical expression contains a
+\terminal{/\backslash} (logical ``and'') with at least one argument being a
+\terminal{->} (logical ``implication'') or a \terminal{<->} (logical
+``equivalence'') without parentheses around the $side$ argument (``left''
+or ``right''). Since this is not clear of how to associate, we  ask
+the user to explicitly add parentheses.
+
+{\em Hints}: Explicitly add the parentheses to make the association
+non-ambiguous.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Ambiguous logical expression. Add explicit parentheses to
+  associate the $side$ argument of the \terminal{\backslash/} properly.}
+{\em Description}: A logical expression contains a
+\terminal{\backslash/} (logical ``or'') with at least one argument being a
+\terminal{->} (logical ``implication'') or a \terminal{<->} (logical
+``equivalence'') without parentheses around the $side$ argument (``left''
+or ``right''). Since this is not clear of how to associate, we  ask
+the user to explicitly add parentheses.
+
+{\em Hints}: Explicitly add the parentheses to make the association
+non-ambiguous.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Hypothesis, notation or variable name '$name$' already bound in
+  the current scope of the proof.}
+{\em Description}: In the current proof, an hypothesis, a notation or a
+variable is introduced but there already exists one with this name.
+
+{\em Hints}: Rename the mentionned hypothesis, notation or variable.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{The property '$name$' doesn't belong to a collection but to a
+  species.}
+{\em Description}: A proof fact attempts to use a property hosted in a species
+instead of in a collection. Since only collections are ensuring that properties
+they contain hold, only properties from collections can be used to make
+proofs. In effect, in a species, a property may only be stated without being
+provable. Relying on an unproved property may allow to write wrong proofs.
+
+{\em Hints}: Either you have a collection implementing the species from whom
+you are trying to use the proof and then use the property from this collection.
+Or have a collection parameter whose interface is the species from whom you
+are trying to use the proof and then use the property from this collection
+parameter.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Termination proof considers '$name$' as decreasing but it is not
+  an argument of the function.}
+
+{\em Description}: A termination proof (either \terminal{by measure} or
+\terminal{by order} of a recursive function uses the identifier '$name$'
+to pinpoint the decreasing parameter. However, this identifier is not a
+parameter of the function.
+
+{\em Hints}: You may got confused in the name of the parameter. Ony one of
+the function's parameter can appear at this place.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unbound sum type value constructor '$name$'.}
+{\em Description}: An identifier representing a sum type value constructor
+was not found among the available sum type definitions.
+
+{\em Hints}: Source program to fix. Since in core expressions
+capitalized identifiers are considered as sum type value constructors,
+may be you tried to use a capitalized name for one of your
+variables. In this case, as any variables, make it starting with a
+lowercase letter. Otherwise, may be your type definition is missing or
+not reachable in the current scope (missing explicit qualification
+with the ``\#'' notation or {\tt open} directive if your type
+definition is hosted in another source file).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unbound record type label '$name$'.}
+{\em Description}: An identifier representing a record type label
+was not found among the available record type definitions.
+
+{\em Hints}: Source program to fix. May be your type definition is
+missing or not reachable in the current scope (missing explicit
+qualification with the ``\#'' notation or {\tt open} directive if your
+type definition is hosted in another source file).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unbound identifier '$name$'.}
+{\em Description}: An identifier (expected to be bound by a {\tt let},
+a pattern of a function parameter declaration) was not found.
+
+{\em Hints}: Source program to fix. May be your definition should be
+toplevel and is missing or not reachable in the current scope (missing
+explicit qualification with the ``\#'' notation or {\tt open}
+directive if your definition is hosted in another source file).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unbound type '$name$'.}
+{\em Description}: The definition of an identifier expected to be a
+type constructor was not found.
+
+May be your type definition is missing or not reachable in the current
+scope (missing explicit qualification with the ``\#'' notation or
+{\tt open} directive if your type definition is hosted in another
+source file).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unbound compilation unit '$name$'.}  {\em Description}: A
+{\tt open} or {\tt use} directive or an explicit qualification by the
+``\#'' notation makes reference to a compilation unit that was not
+found in the current libraries search path.
+
+{\em Hints}: Locate in which directory the missing  file is
+and add this directory to the libraries search path with the {\tt -I}
+compiler option.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unbound species '$name$'.}
+{\em Description}: The definition of the species $name$ was not found
+in the current scope.
+
+{\em Hints}: May be your species definition is missing or not
+reachable in the current scope (missing explicit qualification with
+the ``\#'' notation or {\tt open} directive if your species definition is
+hosted in another source file).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Species '$name$' is not a collection. Its carrier can't be used in type expressions.}
+{\em Description}: A type expression makes reference to the carrier of
+either a collection that doesn't exist or a species (which is not a
+collection).
+
+{\em Hints}: The common confusion is to consider that a complete species
+is like a collection. However, only carriers of collections are allowed
+in type expressions. Ensure you didn't make reference to a species instead
+of an effective collection.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Type name '$name$' already bound in the current scope.}
+{\em Description}: In a source file it is not allowed to redefine a
+type definition. This means that each type name definition must be
+unique inside a file. However, it is possible to have several type
+definitions with the same names as long as they are in different
+source files (even if they are used together via {\tt open} directives
+of explicit qualification by the ``\#'' notation).
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Species name '$name$' already bound in the current scope.}
+{\em Description}: In a source file it is not allowed to redefine a
+species definition. This means that each species name definition must
+be unique inside a file. However, it is possible to have several species
+definitions with the same names as long as they are in different
+source files (even if they are used together via {\tt open} directives
+of explicit qualification by the ``\#'' notation).
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Types $t_1$ and $t_2$ are not compatible.}
+{\em Description}: The typechecking system detected a type conflict
+between two expressions $t_1$ and $t_2$ that were expected to be
+type-compatible.
+
+{\em Hints}: Source program to fix. This is mostly due to an attempt
+to use the type of a {\tt representation} although it is turned
+abstracted by the collection or parametrisation mechanisms. In this
+case, ensure that you are not trying to make assumptions on the type
+ of a collection parameter or a collection.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Type $t_1$ occurs in $t_2$ and would lead to a cycle.}
+{\em Description}: The {\focal} type system does not allow cyclic
+types. This especially means that a type expression must not be a
+sub-part of itself to prevent cycles.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Type constructor '$name$' used with conflicting arities:
+  $n_1$ and $n_2$.}
+{\em Description}: A type expression applies a type constructor $name$
+to $n_1$ argument(s) although its definition declared it as using $n_2$
+argument(s) (or in the other order, depending on the way the error was
+detected: in any way the definition and the usage of the type involve
+2 different numbers of arguments).
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{No expected argument(s).}
+{\em Description}: A type expression applies a type constructor to
+arguments although this constructor needs none.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{In method '$name$', type scheme $sch$ contains free variables.}
+
+{\em Description}: As presented in \ref{no-polymorphism-for-methods},
+species methods cannot be polymorphic. The method $name$ has a
+ type scheme shown by $sch$  which is polymorphic.
+
+{\em Hints}:  You may explicitly add type
+annotations (constraints) on the arguments or/and return type of your
+method definition. If you need some kind of such polymorphism, use the
+collection parameter mechanism.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Sum type  value constructor '$name$' expected $n_1$ arguments but
+  was used with $n_2$ arguments.}
+
+{\em Description}: The sum type constructor $name$ is used with a bad
+number of arguments. It was declared to use $n_1$ arguments but is
+used with $n_2$.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unbound type variable $name$.}
+
+{\em Description}: In a type expression, a type variable $name$ is not
+bound.
+
+{\em Hints}: Source program to fix. May be the type expression appears
+in a parametrised type definition where you forgot to specify the type
+constructor's parameter in head of the definition.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Method '$mname$' multiply defined in species '$sname$'.}
+
+{\em Description}: Like for toplevel definitions, method definitions
+inside a species must not bind several times the same name. In the
+species $sname$, the method $mname$ is defined several times.
+
+{\em Hints}: Source program to fix. May be you defined several times
+the same method and in this case, remove one of the definitions. Or if
+the different occurrences of $mname$ refer to different conceptual
+functions, change the names to make them different.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Delayed proof  of '$name$' was found several times in the
+  species. Other occurrence is at: $loc$.}
+
+{\em Description}: A delayed proof of the property $name$ was found
+several times in the same species (i.e. not via inheritance but
+directly in the species body). Only one must be kept.
+
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{In species '$sname$', proof of '$pname$' is not related to
+  an existing property.}
+
+{\em Description}: In the species $sname$ a delayed proof of the
+property $pname$ was found but the statement of this property doesn't
+exist in the current species even via inheritance.
+
+
+{\em Hints}: May be you forgot to write the property, or you mistook
+on the property name the proof is related to or you forgot to inherit
+from a species having this property.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Representation is multiply defined.}
+
+{\em Description}: In a species, the method {\tt representation} is
+multiply defined in the body of the species although at most one
+definition must be provided.
+
+{\em Hints}: Source program to fix. Remove the spurious definitions.
+
+If the {\tt representation} method is not directly present in the
+body, that is because the species inherits from a parent where the
+representation is already defined. In this last case, since the parent's
+structure is already established, you must remove the {\tt representation} method
+in the species where the error was reported.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Representation is multiply defined by multiple
+  inheritance and was formerly found of type $t_1$ and newly found of
+  type $t_2$.}
+
+{\em Description}: In the species, several parents brought by
+inheritance several incompatible definitions of the representation. The error message reports $t_1$ and $t_2$, two incompatible
+types found for the representation definition.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{'Self' can't be parametrised by itself.}
+
+{\em Description}: This error appears when {\tt Self} appears as a
+species identifier used in a species expression that is a parameter of
+the current defined species.
+
+% {\color{red} Unsure, not appearing raised anymore. Check if this is
+%   for further analysis or if it is a remaining spurious stuff.}
+
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{A "is" parameter can only be instantiated by an identifier of a collection.}
+
+{\em Description}: In a species expression, a parametrised species by
+an entity parameter ({\tt is}-parameter) is provided an effective
+argument that is not a collection identifier.
+
+% {\em Hints}: Source program to fix. Although a collection parameter
+% denotes a {\bf value} (and not a {\bf collection} like for
+% {\tt is}-parameters), this value must have the {\bf type} of a
+% collection interface. Hence in a species expression, a
+% {\tt in}-parameter) must be instantiated by a {\tt collection}
+% identifier.
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Illegal use of toplevel species '$S$' as effective argument.}
+
+{\em Description}: Effective parameter in species expressions (for inheritance
+or collection implementation) can only be collections or collection
+parameters. In the present case, a toplevel species was used instead which
+is inconsistent.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Collection '$s_1$' is not compatible with '$s_2$'. In method
+  '$name$', types $t_1$ and $t_2$ are not compatible.}
+
+{\em Description}: During collection parameter instantiation, the
+interface of the provided collection  $s_1$ is not compatible with the
+interface  $s_2$, because it doesn't have a signature containing at
+least $s_2$'s methods with compatibles types. The wrong field $name$
+is reported with the two types $t_1$ and $t_2$ expected and actually
+found.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Collection '$s_1$' is not compatible with '$s_2$'. In method
+  '$fname$', type $t_1$ occurs in $t_2$ and would lead to a cycle.}
+
+{\em Description}: During collection parameter instantiation, the interface
+of the provided collection $s_1$ is not compatible with the interface $s_2$,
+since type compatibility check detected a cyclic type. This means that the
+type $t_1$ is a sub-part of itself via the type $t_2$.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Collection  '$s_1$' is not compatible with '$s_2$'. In method
+  '$fname$', the type constructor '$tname$' is used with the different
+  arities $n_1$ and $n_2$.}
+
+{\em Description}: During collection parameter instantiation, the interface
+of the provided collection $s_1$ is not compatible with the interface $s_2$,
+since the type constructor (not sum type constructor) $tname$ is used with an
+improper number of arguments $n_1$ versus $n_2$.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Collection  '$s_1$' is not compatible with  '$s_2$'.  Method '$name$'
+  is not present in '$s_1$'.}
+
+{\em Description}: During collection parameter instantiation, the interface
+of the provided collection $s_1$ is not compatible with the interface $s_2$,
+because it doesn't have a signature containing at least $s_2$'s methods and
+especially not the method $name$.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Parameterised species is applied to $n$ arguments.}
+
+{\em Description}: A parameterised species is applied to a wrong
+number $n$ of effective arguments.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Species '$sname$' cannot be turned into a collection. Following
+ field(s) is(are) not defined: ...}
+
+{\em Description}: A collection is built  out of a  completely defined species
+(cf. \ref{collection}), i.e. a species where {\bf all} the methods
+are {\bf defined} and not only declared. In the species $sname$, the
+listed methods are only declared (or missing a termination proof in case of
+recursive functions and usage of the {\tt -impose-termination-proof}).
+Hence the species is not complete and no collection can be extracted
+from it.
+
+Note that missing termination is by default only a {\bf warning} and
+is turned into an error by using the {\tt -impose-termination-proof}
+option on the command line. In effect, the notion of to ``be defined''
+applies to recursive functions which must have a termination proof
+provided in addition to their computational body.
+
+{\em Hints}: Add an effective definition of the method, either by
+writing it code or by inheritance, according to your program model.
+
+Add an effective termination proof to the function or do
+not invoke the {\tt -impose-termination-proof} option when compiling
+the source file.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Warning: In species '$sname_1$', proof of '$pname$' could be done
+  earlier in '$sname_2$'.}
+
+{\em Description}: This message is only a {\bf warning}. It states
+that the property $pname$ whose proof was done in the species
+$sname_1$ could be proved earlier in the inheritance (mor eaccurately,
+in the species $sname_2$ from which $sname_1$ inherits) because all
+the material used in the proof was already available in the species
+$sname_2$. This espacially means that all the methods the proof
+{\bf def}-depends on were alrady {\bf defined}, and all the methods
+the proof {\bf decl}-depends on were already {\bf declared}.
+
+{\em Hints}: Move the proof of the property directly in the species
+$sname_2$. If the property is also hosted in $sname_2$, then it can
+directly be turned into a theorem, merging the 2 fields {\tt property}
+and {\tt proof of}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{In the delayed termination proof, parameter '$name$' does
+  not refer to a parameter of the original function.}
+
+{\em Description}: As any proof, termination proofs can be made later
+after the function definition. However it must refer to the original
+function's parameters names. In the current proof, the identifier
+$name$ doesn't exist among the original function's parameters.
+
+{\em Hints}: Change the parameter name in the proof to make it
+matching the function definition's ones.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Method '$mname$' was found with incompatible types during
+  inheritance. In species '$s_1$': $\tau_1$, in species '$s_2$':
+  $\tau_2$.}
+
+{\em Description}: During inheritance, a method $nmane$ was found with
+2 incompatible types. Remind that all along the inheritance tree,
+methods must not change their type. The two found types and the
+species hosting the definitions having these types are provided by
+'$s_1$'and $\tau_1$ (resp. '$s_2$'and $\tau_2$).
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Logical method '$mname$' appearing in species '$s_1$' should
+  have the same statement than in species '$s_2$' at
+  $source-location$.}
+
+{\em Description}: During inheritance, a theorem or a property $nmane$
+was redefined but with a different statement. As described at the
+beginning of \ref{inheritance}, the inheritance mechanism also allows
+to redefine methods already existing as long as they keep the same
+type expression.  For theorems to have the same type is simply to have
+the same statement. A same property can be written in several
+semantically equivalent ways. For instance, transitivity of an
+operation $\odot$ can be written by:
+$\forall x, y, z \in S, x \odot y \Rightarrow y \odot z \Rightarrow
+x \odot z$
+or
+$\forall x, y, z \in S, (x \odot y \wedge y \odot z) \Rightarrow
+x \odot z$.
+{\focal} does not try to establish the equality of these two
+expressions. It only compares syntactically the statements modulo
+variables renaming (i.e. $\alpha$-conversion) and non-significant
+parentheses.
+
+{\em Hints}: The simplest way is to rewrite the logical statement of
+the inheriting species as it was written in the inherited species.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Definition '$name$' is considered as both  logical and
+  non-logical.}
+
+{\em Description}: In the inheritance tree of the current species, a
+method $name$ was previously found a ``logical'' and is now found no
+more ``logical''.
+
+{\em Hints}: Ensure that you did not define 2 methods with the same
+name but for different purposes (one to help in stating logical
+expressions and the other for your computational behaviour).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Definition '$name$' is redefined although marked final.}
+
+{\em Description}: In the inheritance tree of the current species, a
+method $name$ was previously defined with the keyword {\tt final} forbidding
+any later redefinition while the current species try to redefine it.
+
+{\em Hints}: If the previous definition was flagged as to be never changed,
+there may have good reasons. Try to understand while the software architecture
+imposed this constraint (before -- may be dangerously-- thinking at removing the
+{\tt final} qualifier!).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Species 'sname' is not well-formed. Method  '$name$' involves
+  a non-declared recursion for the following dependent methods: \ldots}
+
+{\em Description}: The species $sname$ doesn't respect the
+well-formation rule presented in \ref{well-formation}. The chain of
+functions involved in the cycle is given in the error message as a
+sequence of methods names
+$m_1 \rightarrow m_2 \rightarrow \ldots \rightarrow m_n$ with the
+implicit final path $m_n \rightarrow m_1$.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{No $lang$ mapping given for the external value definition
+  '$name$'.}
+
+{\em Description}: The external value definition allowing to link
+{\focal} code to foreign languages doesn't specify how to map the value
+identifier $name$ in the language $lang$.
+
+{\em Hints}: Supply a binding for this language in the external
+definition.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{No $lang$ mapping given for the external type definition
+  '$name$'.}
+
+{\em Description}: The external type definition allowing to link
+{\focal} code to foreign languages doesn't specify how to map the type
+identifier $name$ in the language $lang$.
+
+{\em Hints}: Supply a binding for this language in the external
+definition.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{No $lang$ mapping given for the external sum type value
+  constructor '$name$'.}
+
+{\em Description}: The external sum type definition allowing to link
+{\focal} code to foreign languages doesn't specify how to map the sum
+type constructor $name$ in the language $lang$.
+
+{\em Hints}: Supply a binding for this language in the external
+definition.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{No $lang$ mapping given for the external record field
+  '$name$'.}
+
+{\em Description}: The external record type definition allowing to
+link {\focal} code to foreign languages doesn't specify how to map the
+record field $name$ in the language $lang$.
+
+{\em Hints}: Supply a binding for this language in the external
+definition.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unable to find OCaml generation information for compiled
+  file '$file$'. Compilation unit may have been compiled without OCaml code
+  generation enabled.}
+
+{\em Description}: The {\focal} compilation unit file $file$.fcl was compiled but
+the object file doesn't contain information about {\ocaml} code
+generation. The {\focal} compiler allows to disable the {\ocaml} code
+production by the {\tt --no-ocaml-code} option. May be this option was used.
+
+{\em Hints}: Invoke the compiler on the source file $file$.fcl without
+the {\tt --no-ocaml-code} option.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Record type definition contains a mutable field '$name$' that can't
+  be compiled to Coq.}
+
+{\em Description}: {\color{red} Never raised in the current version
+  since mutable record fields are not yet available}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unable to find Coq generation information for compiled file
+  '$file$'. Compilation unit may have been compiled without Coq code
+  generation enabled.}
+
+{\em Description}: The {\focal} compilation unit $file$.fcl was
+compiled but the object file doesn't contain information about {\coq}
+code generation. The {\focal} compiler allows to disable the {\coq} code
+production by the {\tt --no-coq-code} option. May be this option was
+used.
+
+{\em Hints}: Invoke the compiler on the source file $file$.fcl without
+the {\tt --no-coq-code} option.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Using a collection parameter's method ($name$) in a Zenon proof
+  with "by definition" is not allowed.}
+
+{\em Description}: The current proof tries to used the definition of a
+method $name$ of a species parameter. Since species parameters are
+always abstracted, {\bf definitions} (i.e. ``bodies'') of their methods
+are {\bf not} available in the parametrised species. For this reason,
+it is impossible to provide this definition to {\zenon}.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Using an only declared method of Self ($name$) in a Zenon
+  proof with "by definition" is not allowed.}
+
+{\em Description}: The current proof tries to used the definition of a
+method $name$ {\bf only declared} in the current species. Since the
+definition is not available, it is impossible to provide it to
+{\zenon}.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Using a local identifier ($name$) in a Zenon proof with "by
+  definition" is not allowed.}
+
+{\em Description}: The current proof tries to used a local variable
+$name$, i.e. an identifier not representing a method, hence
+meaningless for {\zenon}.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Using a local identifier ($name$) in a Zenon proof with "by
+  property" is not allowed.}
+
+{\em Description}: The current proof tries to used a local variable
+$name$, i.e. an identifier not representing a method, hence
+meaningless for {\zenon}.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Assumed hypothesis '$hyp$' in a Zenon proof was not found.}
+
+{\em Description}: The current proof makes a reference to an
+hypothesis $hyp$ that was not found in the current proof tree.
+
+{\em Hints}: None.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Step '$<$\ldots$>$\ldots' in a Zenon proof was not found.}
+
+{\em Description}: The current proof makes a reference to an
+proof step that was not found in the current proof tree.
+
+{\em Hints}: None.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Mutual recursion is not yet supported for Coq code
+  generation. At least functions '$name_1$' and '$name_2$' are
+  involved in a mutual recursion.}
+
+{\em Description}: The current version of {\focal} does not yet handle
+{\coq} code generation for mutual recursive functions. At least the two
+functions $name_1$ and $name_2$ were found as mutually recursive but
+may be the recursion involves more functions. It is then impossible to
+produce {\coq} source code.
+
+
+{\em Hints}: Until this feature is available in {\focal}, do not try to
+generate the {\coq} code for the source file containing these functions
+by using the {\tt --no-coq-code} option.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Recursive call to '$name$' contains nested recursion.}
+
+{\em Description}: The function contains a recursive call to $name$
+inside a recursive call. The current version of {\focal} doesn't
+support the {\coq} code generation for nested recursive calls.
+
+{\em Hints}: Try to rewrite your function with the nested call
+performed before the outer recursive call. For instance:
+{\scriptsize
+\begin{lstlisting}
+let rec f (x) =
+  ...
+  f (f (bla))
+  ...
+\end{lstlisting}
+}
+should be turned into:
+{\scriptsize
+\begin{lstlisting}
+let rec f (x) =
+  ...
+  let tmp = f (bla) in
+  f (tmp)
+  ...
+\end{lstlisting}
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Recursive call to '$name$' is incomplete.}
+
+{\em Description}: The function contains a recursive occurrence of
+$name$ with an incomplete number of parameters. Since application
+syntactically requires all the arguments to be present, this can arise
+if the recursive identifier is used in non-applicative
+position. However the error message is more general since future
+extensions may involve partial applications. Below follows an example
+of such invalid usage of a recursive function identifier:
+{\scriptsize
+\begin{lstlisting}
+let rec f (x) =
+  ...
+  let tmp = f in
+  let ...  = tmp (...) ... in
+  f (...)
+  ...
+\end{lstlisting}
+}
+
+{\em Hints}: None
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Pattern-matching is not exhaustive.}
+
+{\em Description}: The pointed pattern-matching expression doesn't
+handle all the shapes of possible incoming values according to the
+type of the matched expression. If such a non-handled value arises at
+runtime, execution will be aborted. Moreover, {\coq} will reject
+generated code.
+
+{\em Hints}: Complete the pattern-matching by adding cases covering
+all the possible shapes of values. Inspect the type definition related
+to the matched expression to find the missing constructors. The
+ultimate {\em bullet-proof} solution is to add a ``catch-all''
+pattern, although it is not always the suitable solution: study if all
+the remaining cases require the same process.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Useless case in pattern-matching.}
+
+{\em Description}: The pointed pattern-matching expression contains a
+case already caught by a previous one. Hence, this useless case will
+never be followed.
+
+{\em Hints}: Remove the spurious case. But before, make sure you
+didn't write above a pattern using a variable instead of a value
+constructor. Another common error is to use in a pattern, a variable wearing
+the same name than a previously bound one, thinking that
+pattern-matching will test equality of the matched value with the
+value of this previously bound variable. For instance:
+
+{\scriptsize
+\begin{lstlisting}
+let var = 3 in
+match (var + 0) with
+  | var -> false
+  | _ -> true
+\end{lstlisting}}
+
+\noindent will {\bf not} check that the matched value ($4$) is equal to the
+value of \lstinline"var". In the pattern, \lstinline"var" is a new
+identifier that will be bound to the value of the matched expression,
+here to $3$. Hence, in this case the first branch is always taken, leaving the
+second one useless.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Unexpected error: "$msg$". Please report.}
+
+{\em Description}: An error was raised and not expected during a
+normal execution of the compiler. This is a failure of the compiler
+and must be fixed by the {\focal} development team. The error message
+display the internal reason of the failure and must be reported to the
+{\focal} development team.
+
+{\em Hints}: \verb+http://focal.inria.fr/+, link ``Bug tracking''.

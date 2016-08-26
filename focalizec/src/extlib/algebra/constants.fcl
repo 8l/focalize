@@ -1,0 +1,86 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                        FoCaLize compiler                            *)
+(*                                                                     *)
+(*            Renaud Rioboo                                            *)
+(*            François Pessaux                                         *)
+(*            Pierre Weis                                              *)
+(*            Damien Doligez                                           *)
+(*                                                                     *)
+(*                               LIP6   -  INRIA Rocquencourt          *)
+(*                                                                     *)
+(*  Copyright 2007 LIP6 and INRIA                                      *)
+(*  Distributed only by permission.                                    *)
+(*                                                                     *)
+(***********************************************************************)
+
+(* $Id: constants.fcl,v 1.9 2009-06-26 13:53:16 rr Exp $ *)
+
+(* for bool *)
+open "basics";;
+
+(* for equality *)
+open "sets";;
+
+(**
+   A set with zero has an element called zero,
+   some authors make this a primitive operation .
+*)
+species Setoid_with_zero =
+
+  inherit Setoid;
+
+ (** @mathml <mn>0</mn>
+    will be rendered as 0
+  *)
+  signature zero : Self;
+
+  (** sample element can be definbed to zero *)
+  let element = Self!zero;
+
+  (** A unary function which checks to zero *)
+  let is_zero(x) = !equal(x, !zero);
+
+
+  (** To me the two following should define equality from zero check *)
+  theorem is_zero_spec: all x : Self,
+    !is_zero(x) <-> (!equal (x, !zero) \/ !equal (!zero, x))
+    proof = by definition of is_zero
+               property !equal_reflexive, !equal_symmetric;
+  theorem zero_checks_to_zero: !is_zero(!zero)
+    proof = by property is_zero_spec, !equal_reflexive;
+
+end
+;;
+
+(** A setoid with one has a special element named one *)
+species Setoid_with_one =
+
+  inherit Setoid;
+
+ (** @mathml <mn>1</mn>
+    will be rendered as 1
+ *)
+  signature one : Self;
+
+  (** A unary function that checks to one *)
+  let is_one (x) = Self!equal (x, !one);
+  let element = Self!one;
+
+  theorem is_one_spec: all x : Self,
+    !is_one(x) <-> (!equal (x, !one) \/ !equal (!one, x))
+    proof = by definition of is_one property !equal_reflexive, !equal_symmetric;
+
+end
+;;
+
+open "orders";;
+
+(**
+   In the future we hope we can ban Setoid and describe mathematical sets.
+   It is a habit to use orderings and some form of zero element.
+ *)
+
+species Ordered_set_with_zero =
+  inherit Setoid_with_zero, Ordered_set;
+end;;

@@ -1,0 +1,28 @@
+\@@addtocsec{htoc}{sec1}{0}{\@print{1}\quad{}Forewords{}}
+\@@addtocsec{htoc}{sec2}{1}{\@print{1.1}\quad{}Content{}}
+\@@addtocsec{htoc}{sec3}{1}{\@print{1.2}\quad{}Notations and Recommandations{}}
+\@@addtocsec{htoc}{sec4}{0}{\@print{2}\quad{}Dealing with first order logic theorems{}}
+\@@addtocsec{htoc}{sec5}{1}{\@print{2.1}\quad{}A so simple property: fully automated proof{}}
+<span style="color:blue">\@@addtocsec{htoc}{</span>sec6<span style="color:blue">}{1}{\@print{2.2}\quad{}</span><span style="color:blue">Still simple but easier with \zenon{}</span><span style="color:blue">}
+</span><span style="color:blue">\@@addtocsec{htoc}{</span>sec7<span style="color:blue">}{0}{\@print{3}\quad{}</span><span style="color:blue">Playing with programs{}</span><span style="color:blue">}
+</span><span style="color:blue">\@@addtocsec{htoc}{</span>sec8<span style="color:blue">}{1}{\@print{3.1}\quad{}</span><span style="color:blue">Introducing functions{}</span><span style="color:blue">}
+</span><span style="color:blue">\@@addtocsec{htoc}{</span>sec9<span style="color:blue">}{1}{\@print{3.2}\quad{}</span><span style="color:blue">Introducing pairs{}</span><span style="color:blue">}
+</span><span style="color:blue">\@@addtocsec{htoc}{</span>sec10<span style="color:blue">}{1}{\@print{3.3}\quad{}</span><span style="color:blue">Playing with pairs{}</span><span style="color:blue">}
+</span><span style="color:blue">\@@addtocsec{htoc}{</span>sec11<span style="color:blue">}{1}{\@print{3.4}\quad{}</span><span style="color:blue">Introducing inductive types{}</span><span style="color:blue">}
+</span><span style="color:blue">\@@addtocsec{htoc}{</span>sec12<span style="color:blue">}{1}{\@print{3.5}\quad{}</span><span style="color:blue">When automatic induction fails{}</span><span style="color:blue">}
+</span><span style="color:blue">\@@addtocsec{htoc}{</span>sec13<span style="color:blue">}{2}{\@print{3.5.1}\quad{}</span><span style="color:blue">Simple example{}</span><span style="color:blue">}
+</span><span style="color:blue">\@@addtocsec{htoc}{</span>sec14<span style="color:blue">}{2}{\@print{3.5.2}\quad{}</span><span style="color:blue">More complex example{}</span><span style="color:blue">}
+</span><span style="color:red">\@@addtocsec{htoc}{</span>sec15<span style="color:red">}{1}{\@print{3.6}\quad{}</span><span style="color:red">Introducing lemmas{}</span><span style="color:red">}
+</span><span style="color:red">\@@addtocsec{htoc}{</span>sec16<span style="color:red">}{0}{\@print{4}\quad{}</span><span style="color:red">A first simple program{}</span><span style="color:red">}
+</span>\citation{FoCaLiZe-Tuto}
+<span style="color:red">\@@addtocsec{htoc}{</span>sec17<span style="color:red">}{1}{\@print{4.1}\quad{}</span><span style="color:red">The goal{}</span><span style="color:red">}
+</span><span style="color:green">\@@addtocsec{htoc}{</span>sec18<span style="color:green">}{1}{\@print{4.2}\quad{}</span><span style="color:green">Modeling data structures{}</span><span style="color:green">}
+</span><span style="color:green">\@@addtocsec{htoc}{</span>sec19<span style="color:green">}{1}{\@print{4.3}\quad{}</span><span style="color:green">The main algorithm{}</span><span style="color:green">}
+</span><span style="color:green">\@@addtocsec{htoc}{</span>sec20<span style="color:green">}{1}{\@print{4.4}\quad{}</span><span style="color:green">Introducing the main property{}</span><span style="color:green">}
+</span><span style="color:green">\@@addtocsec{htoc}{</span>sec21<span style="color:green">}{1}{\@print{4.5}\quad{}</span><span style="color:green">Making the proof{}</span><span style="color:green">}
+</span><span style="color:green">\@@addtocsec{htoc}{</span>sec22<span style="color:green">}{2}{\@print{4.5.1}\quad{}</span><span style="color:green">Proving the first lemma{}</span><span style="color:green">}
+</span><span style="color:green">\@@addtocsec{htoc}{</span>sec23<span style="color:green">}{2}{\@print{4.5.2}\quad{}</span><span style="color:green">Proving other lemmas : THE END{}</span><span style="color:green">}
+</span><span style="color:green">\@@addtocsec{htoc}{</span>sec24<span style="color:green">}{0}{\@print{5}\quad{}</span><span style="color:green">Conclusion{}</span><span style="color:green">}
+</span><span style="color:green">\bibstyle{abbrv}
+</span><span style="color:green">\bibdata{bibli}
+</span>\bibcite{FoCaLiZe-Tuto}{1}

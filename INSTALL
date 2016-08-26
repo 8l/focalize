@@ -1,0 +1,156 @@
+# ************************************************************************** #
+#                                                                            #
+#                        FoCaLiZe compiler                                   #
+#                                                                            #
+#            François Pessaux                                                #
+#            Pierre Weis                                                     #
+#            Damien Doligez                                                  #
+#                                                                            #
+#               LIP6  --  INRIA Rocquencourt -- ENSTA ParisTech              #
+#                                                                            #
+#  Copyright 2007 - 2012 LIP6 and INRIA                                      #
+#            2012 ENSTA ParisTech                                            #
+#  Distributed only by permission.                                           #
+#                                                                            #
+# ************************************************************************** #
+
+
+(0) Forewords:
+==============
+
+The installation of the FoCaLiZe will setup 3 components:
+ - The Zenon automatic prover
+ - The Zvtov converter of proofs to various theorem provers
+ - The FoCaLiZe compiler tool suit (compiler, dependencies checker, inheritance
+   graph viewer, testing tool).
+
+Installation requires some external tools, the most emblematic ones being:
+ - OCaml (any recent version -- >= 3.11 --) should be fine.
+ - Coq (any recent version -- >= 8.1pl5 --) should be fine.
+ - Zenon (either download an archive or get it from the GIT repository by
+  invoking:
+      git clone http://focalize.inria.fr/zenon.git
+  in the root directory of focalize (usually "focalize")).
+ - Hevea (for the documentation in HTML) that can be fetched at
+      http://hevea.inria.fr.
+
+Some the minor (but still needed) tools are also required (LaTeX, make, dvipdf,
+dvips) but are generally part of a standard installation on a development
+machine.
+
+
+(1) Quick Installation:
+=======================
+
+For hurry people, assuming default installation settings/directories from
+the toplevel 'focalize' directory run:
+  make all
+
+When prompt, enter your password to allow installer to write in installation
+directories (usage of the 'sudo' command).
+
+If you want to customize the installation knowing in advance the options you
+want to pass to the configure files (see section (4) for options), you may
+directly invoke 'make' providing the configuration flags via the
+'CONFIGURE_FLAGS' Makefile variable. For instance:
+  make CONFIGURE_FLAGS="--install_prefix /tmp" all
+
+
+(2) After installation:
+========================
+
+If your version of Coq is older than 8.3pl2, you'll need to invoque the FoCaLiZe
+compiler, 'focalizec' with the option:
+  -coq_older
+to ensure the generated Coq code is compliant with your version. Note that the
+configuration process will have warned you about this point.
+
+
+(3) Custom Installation:
+========================
+
+By default, configuration scripts run silently as long a they find suitable
+versions of the required tools. They install software in subdirectories of
+'/usr/local' ('lib', 'bin', 'share', 'man').
+
+If for any reason, you want to change installation directories or use versions
+of the tools different from the ones in your PATH, then you may want the
+configuration process to ask you your settings (or accept the proposed ones).
+
+From the toplevel 'focalize' directory then run:
+  make interactive-all
+
+Before building components, the configuration process will search for
+dependencies and propose you what it found. You're free to accept or to enter
+an alternative path/command/directory. This is a bit verbose since you'll have
+to enter information when prompted. For finer configuration using command-line
+options, see below.
+
+(4) Finer Custom Installation:
+==============================
+
+If you don't want to bother about entering your settings at the prompt (may
+be you need to recompile several times FoCaLize, or want just to change one or
+two default values), then you need to manually configure, build and install
+the 3 components, following the scheme, feeding the xx/configure scripts with
+your command-line options (see below) for settings:
+
+From the toplevel 'focalize' directory:
+  ./configure
+  cd zenon
+  ./configure-for-focalize
+  make depend
+  make all
+  make doc
+  make install
+  cd ../zvtov
+  ./configure
+  make depend
+  make all
+  make doc
+  make install
+  cd ../focalizec
+  ./configure
+  make depend
+  make world
+  make doc
+  make install
+
+That's it ;)
+
+Scripts 'configure' can be provided tuning options:
+* focalize/configure:
+  [-]-interactive: run interactively, asking questions.
+  [-]-tools_prefix <directory>:  set <directory> as the directory prefix where
+      tools required to build FoCaLiZe are installed. The currently required
+      non-common tools are OCaml and Coq.
+* focalize/zenon/configure-for-focalize:
+  [-]-interactive: run interactively, asking questions.
+  [-]-install_prefix <directory>: set <directory> as the directory prefix for
+      installation of the FoCaLize commands. (Default value for <directory>
+      is /usr/local).
+* focalize/zvtov/configure: Same than for focalize/zenon/configure.
+* focalize/focalizec/configure:
+  [-]-interactive: run interactively, asking questions.
+  [-]-install_prefix <directory>: set <directory> as the directory prefix for
+      installation of the FoCaLize commands. (Default value for <directory> is
+      /usr/local).
+  [-]-tools_prefix <directory>: set <directory> as the directory prefix where
+      tools required to build FoCaLiZe are installed. The currently required
+      tools (other than OCaml and Coq already configured) are zenon, zvtov.
+
+
+(5) Administrivia:
+==================
+
+Licence: New BSD Licence (see the file LICENSE for details)
+-------
+
+Contacts:
+---------
+- Web site: http://focalize.inria.fr/
+- Discussion: focalize-users@inria.fr
+- Bug reports for installation: francois.pessaux@ensta-paristech.fr
+- Bug reports for the compiler: http://focalize.inria.fr/
+  (Find and click on the ``Bug Tracking'' link)
+- Contact developers: focalize-devel@inria.fr

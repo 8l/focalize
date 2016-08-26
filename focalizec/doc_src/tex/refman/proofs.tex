@@ -1,0 +1,331 @@
+% $Id: proofs.tex,v 1.24 2012-11-15 15:52:08 pessaux Exp $
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Proofs of theorems}
+
+As presented in \ref{proof-short-intro}, {\focal} proposes 3 ways to
+make proof of properties. We will only deal here with proofs written
+in the {\focal} Proof Language. As a reminder, the proofs written as
+direct {\coq} scripts will be addressed in \ref{coq-proofs}; the
+last kind of proof, by \terminal{assumed} doesn't need anymore description
+since it consists in bypassing the formal proof mechanism.
+
+The syntax of proofs is as follows.
+\label{zenon-and-dependencies}
+\begin{syn}
+\nt{proof} \is
+     \rep{\nt{proof-step}} \nt{qed-step}
+\alt \tok{by} \reps{\nt{fact}}
+\alt \tok{conclude}
+\alt \tok{coq~proof} \nt{enforced-dependencies} \nt{external-code}
+\alt \nt{enforced-dependencies} \tok{assumed} \nt{external-code}
+\end{syn}
+
+\begin{syn}
+\nt{enforced-dependencies} \is
+     \rep{\nt{enforced-dependency}}
+\end{syn}
+
+\begin{syn}
+\nt{enforced-dependency} \is
+\alt \tok{definition} \tok{of} \reps{\nt{definition-name}}
+\alt \tok{property}  \reps{\nt{property-name}}
+\end{syn}
+
+%enforced_dependencies:
+%  | { [ ] }
+%  | enforced_dependency enforced_dependencies
+%    { $1 :: $2 }
+%;
+
+%enforced_dependency:
+%  | DEFINITION OF definition_ident_comma_list
+%    { mk (Ed_definition $3) }
+%  | PROPERTY property_ident_comma_list
+%    { mk (Ed_property ($2)) }
+%;
+
+%\begin{syntax}
+%\syntaxclass{Proofs:}
+%proof & ::=  & proof\_step*\ qed\_step \\
+%      & \mid & \terminal{by}\ fact+{} \\
+%      & \mid & \terminal{conclude}
+%\end{syntax}
+
+A proof is either a leaf proof or a compound proof. A leaf proof
+(introduced with the \terminal{by} or \terminal{conclude} keywords)
+invokes {\zenon} with the
+assumptions being the given facts and the goal being the goal of the
+proof itself (i.e. the statement that is proved by this leaf proof).
+See below for the kinds of facts that can be given.
+
+The \terminal{conclude} keyword is used to invoke {\zenon} without
+assumptions.
+
+A compound proof is a sequence of steps that ends with a \terminal{qed}
+step.  The goal of each step is stated in the step itself, except for
+the \terminal{qed} step, which has the same goal as the enclosing
+proof.
+
+\begin{syn}
+\nt{proof-step} \is
+     \nt{proof-step-bullet} \nt{statement} \nt{proof}
+\end{syn}
+
+%\begin{syntax}
+%\syntaxclass{Proof steps:}
+%proof\_step & ::=  & proof\_step\_bullet~~statement~~proof
+%\end{syntax}
+
+A proof step starts with a proof bullet, which gives its level of
+nesting.  The top level of a proof is 0.  In a compound proof, the
+steps are at level one plus the level of the proof itself.
+
+\goodbreak
+For example, consider the following proof:
+
+{\scriptsize
+\begin{lstlisting}
+theorem implications : all a b : bool, a -> (b -> a)
+proof =
+  <1>1 assume a : bool, b : bool,
+       hypothesis h1 : a,
+       prove b -> a
+       <2>1 hypothesis h2 : b,
+            prove a
+            by hypothesis h1
+       <2>2 qed
+            by step <2>1
+  <1>2 conclude
+      (* or: qed conclude
+         or: qed by step <1>1 *) ;;
+\end{lstlisting}}
+
+Here, the steps \verb"<1>1" and \verb"<1>2" are at level 1
+and form a compound proof of the top-level theorem.  Step \verb"<1>1"
+also has a compound proof (whose aim is \verb"b -> a"), composed of
+steps \verb"<2>1" 
+and \verb"<2>2".  These latter are at level 2 (one more than the level of
+their enclosing step).
+
+After the proof bullet comes the statement of the step.  This is the
+statement that is asserted and proved by this step.  At the end of
+this step's proof, it becomes available as a fact for the next steps
+of this proof.  In our example, step \verb"<2>1" is available in the
+proof of \verb"<2>2", and \verb"<1>1" is available in the proof of
+\verb"<1>2".  Note that \verb"<2>1" is not available in the proof of
+\verb"<1>2": see section~\ref{sec:scoping} for the scoping rules.
+
+After the statement is the proof of the step.  See below (under
+Statements) for a description of what is the current goal for this
+proof.
+
+\begin{syn}
+\nt{qed-step} \is
+    \nt{proof-step-bullet} \tok{ qed} \nt{proof}
+\alt\nt{proof-step-bullet} \tok{ conclude}
+\end{syn}
+
+%\begin{syntax}
+%\syntaxclass{QED steps:}
+%qed\_step & ::=  & proof\_step\_bullet\ \terminal{qed}\ proof \\
+%          & \mid & proof\_step\_bullet\ \terminal{conclude}
+%\end{syntax}
+
+A \terminal{qed} step is similar to a normal step, except that its
+statement is the goal of the enclosing proof.  It may be reduced to
+the word \terminal{conclude} when its proof is reduced to
+\terminal{conclude}. In our example, we could have replaced
+\verb"<1>2" with:
+\begin{verbatim}
+    <1>2 conclude
+\end{verbatim}
+In other words, a \terminal{qed} step serves ending the enclosing
+proof. In the former example, the \verb"<2>2 qed" ends the proof of 
+\verb"<1>1" whose aim was \verb"b -> a".
+
+Similarly, the \verb"<1>2 conclude" (equivalent to
+\verb"<1>2 qed by step <1>1" or \verb"<1>2 qed conclude") ends the
+complete proof, i.e. the one implicitly at level 0, i.e. the whole theorem itself.
+
+\begin{syn}
+\nt{statement} \is
+     \rep{\nt{assumption} \tok{,}}
+     \opt{\tok{prove} \nt{logical-exp}}
+\end{syn}
+
+%\begin{syntax}
+%\syntaxclass{Statements:}
+%statement & ::=  & {\{\terminal{assume}\ assumption\ \terminal{,}\}*}
+%                   \ \{\terminal{prove}\ logical\_expr\}?
+%\end{syntax}
+A statement must be non-empty: at least one assumption or the
+\terminal{prove} part must be present.
+
+A statement appearing in a step has two readings: internal and
+external.  The external reading is for the rest of the
+proof: the current step proves that the assumptions imply the
+conclusion (i.e. the {\em logical-exp} that appears after
+\terminal{prove}).  The internal reading is for the proof of the step:
+the current goal is the \terminal{prove} expression, and the
+assumptions are available as facts.
+
+\begin{syn}
+\nt{assumption} \is
+    \tok{assume} \nt{ident} \tok{ :} \nt{type-exp}
+\alt\tok{hypothesis} \nt{ident} \tok{ :} \nt{logical-exp}
+\alt\tok{notation} \nt{ident} \tok{ =} \nt{exp}
+\end{syn}
+
+%\begin{syntax}
+%\syntaxclass{Assumptions:}
+%assumption & ::= & ident\ \terminal{in}\ type\_expr \\
+%           & \mid & ident\ \terminal{:}\ logical\_expr
+%\end{syntax}
+
+An assumption can either introduce a new (universally quantified)
+variable with its type (first form), or a new named hypothesis (second
+form), or a {\em named notation} (third form).
+
+A named notation can be unfold in the goal or in other facts.
+
+\begin{syn}
+\nt{fact} \is
+     \tok{definition~of}
+        \repsep{\opt{ \opt{\nt{ident}} \tok{\#} } \nt{ident}}{\tok{,}}
+\alt \tok{hypothesis}
+        \repsep{\nt{ident}}{\tok{,}}
+\alt \paren{\tok{property} \orelse \tok{theorem}}
+        \repsep{\opt{\opt{\opt{\opt{\nt{ident}} \tok{\#}} \nt{ident}}
+                     \tok{!}} \nt{ident}}{\tok{,}}
+\alt \tok{type}
+        \repsep{\nt{type-ident}}{\tok{,}}
+\alt \tok{step}
+        \repsep{\nt{proof-step-bullet}}{\tok{,}}
+\end{syn}
+
+%\begin{syntax}
+%\syntaxclass{Facts:}
+%fact & ::= & \terminal{definition~of}
+%                     \ \{ident?\terminal{\#}\}?ident
+%     \ \{\{\terminal{,}\ ident?\terminal{\#}\}?ident\}*
+%\\
+%     & \mid & \terminal{hypothesis}
+%                     \ ident
+%     \ \{\terminal{,}\ ident\}*
+%\\
+%     & \mid & \terminal{property}
+%          \ \{\{\{ident?\terminal{\#}\}?ident\}?\terminal{!}\}?ident
+%\ \{\{\{\{\terminal{,}\ ident?\terminal{\#}\}?ident\}?\terminal{!}\}?ident\}*
+%\\
+%     & \mid & \terminal{theorem}
+%          \ \{\{\{ident?\terminal{\#}\}?ident\}?\terminal{!}\}?ident
+%\ \{\{\{\{\terminal{,}\ ident?\terminal{\#}\}?ident\}?\terminal{!}\}?ident\}*
+%\\
+%     & \mid & \terminal{step}
+%                 \ proof\_step\_bullet
+%  \ \{\terminal{,}\ proof\_step\_bullet\}*
+%\end{syntax}
+
+A fact used in a leaf proof can be a definition, a hypothesis, a
+property, a theorem, a type name, or a step.
+
+Giving a definition as a fact allows {\zenon} to unfold this
+definition in the goal and in the other facts.
+
+Giving a hypothesis/property/theorem as a fact allows {\zenon} to use
+this hypothesis/property/theorem to prove the goal.
+
+Giving a type name as a fact allows {\zenon} to use this type definition to
+prove the goal.
+
+Giving a {\em proof-step-bullet} as a fact allows {\zenon} to use the
+(external reading of the) corresponding step as an assumption to prove the
+goal. Note that even if several steps are labelled with this proof bullet,
+only one of them is in scope at any point, so there is no ambiguity (see
+section~\ref{sec:scoping}).
+
+
+\subsection{Other simple proofs examples}
+
+Here are given some trivial theorems proven using the {\focal} Proof
+Language to get familiar with the syntax and the way to think when
+making proofs. It must be understood that {\zenon} aims at helping by
+combining intermediate proved properties. A proof is no more to be
+split up to a ``trivial'' level like it is the case in {\coq}. For
+instance, in the following theorem, the fact that from \verb"~ b" and
+\verb"(b \/ c)" one can deduce \verb"c" is automatically handled by
+{\zenon}.
+
+{\scriptsize
+\begin{lstlisting}
+theorem and_ors :
+  all a b c : bool, ((a \/ b) /\ (b \/ c)) -> (~ b -> c)
+  proof =
+  <1>1 assume a : bool, b : bool, c : bool,
+       hypothesis h1 : (a \/ b) /\ (b \/ c),
+       prove ~ b -> c
+       <2>1 hypothesis h2: ~ b,
+            prove c
+            by hypothesis h1, h2  (* Indeed, (~ b /\ (b \/ c)) -> c *)
+       <2>2 qed
+            by step <2>1
+  <1>2 conclude ;;
+\end{lstlisting}}
+
+The following example illustrates how to split a proof at the lowest
+level, since in this case, we just need {\zenon} to use hypotheses we
+introduced, only forcing it to deduce \verb"a" and \verb"b" from
+\verb"a /\ b".
+
+{\scriptsize
+\begin{lstlisting}
+theorem and_or :
+  all a b : bool, (a /\ b) -> (a \/ b)
+  proof =
+  (* Sketch, assume a /\ b, then prove a and prove b, each of them being
+      trivial consequence of a /\ b. *)
+  <1>1 assume a : bool, b : bool,
+       hypothesis h1: a /\ b,
+       prove a \/ b
+       <2>1 prove a
+            by hypothesis h1
+       <2>2 prove b
+            by hypothesis h1
+       <2>3 qed
+            by step <2>1, <2>2
+  <1>2 conclude
+            (* or: qed conclude
+            or even: qed by step <1>1 *) ;;
+\end{lstlisting}}
+
+In fact, such a theorem is so simple that {\zenon} is able to
+automatically prove it:
+
+{\scriptsize
+\begin{lstlisting}
+theorem and_or :
+  all a b : bool, (a /\ b) -> (a \/ b)
+  proof = conclude ;;
+\end{lstlisting}}
+
+\noindent also pass. However, some more complex proofs will need
+explicit intermediate steps that {\zenon} can't automatically
+guess. More advance cases can be found in the tutorials provided in
+the {\tt focal} distribution.
+
+\subsection{Scoping rules}\label{sec:scoping}
+
+The scope of a step bullet extends from the end of the proof of that
+step to the end of the proof of the enclosing step (i.e. the end of
+the proof of the \terminal{qed} step that has the same level as this
+step). This means that proof bullets can be reused in other branches
+of the proof to name different steps.
+
+The scope of an assumption is the proof of the step where this
+assumption appears.
+
+\subsection{{\zenon} options}
+\label{zenon-options}
+The list of {\zenon} options and their meaning is given by typing:
+{\tt zenon -h}.

@@ -1,0 +1,225 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                        FoCaLize compiler                            *)
+(*                                                                     *)
+(*            Renaud Rioboo                                            *)
+(*            François Pessaux                                         *)
+(*            Pierre Weis                                              *)
+(*            Damien Doligez                                           *)
+(*                                                                     *)
+(*                               LIP6  -  INRIA Rocquencourt           *)
+(*                                                                     *)
+(*  Copyright 2007, 2008 LIP6 and INRIA                                *)
+(*  Distributed only by permission.                                    *)
+(*                                                                     *)
+(***********************************************************************)
+
+(* $Id: strict_orders.fcl,v 1.13 2011-05-25 14:43:16 maarek Exp $ *)
+
+open "basics";;
+open "sets";;
+
+(**
+   Strict orderings.
+   There are various definitions of strict orderings and some authors
+   define strict quasi orderings which are used in econometrics and
+   so called preference logic.
+
+ *)
+
+(** A strict partial order is an irreflexive and transitive relation, As a
+   consequence it is also asymetric. Sometimes called a strict quasi-order *)
+
+ species Strict_partial_order =
+
+  inherit Anti_setoid;
+
+  signature lt: Self -> Self -> bool;
+
+  property lt_is_irreflexive: all x : Self, ~(!lt(x, x));
+
+  property lt_is_transitive: all x y z : Self,
+    !lt(x, y) -> !lt(y, z) -> !lt(x, z);
+
+  theorem lt_is_asymetric: all x y : Self, !lt(x, y) -> ~(!lt(y, x))
+    proof =
+      <1>1 assume x : Self, y : Self,
+           hypothesis H: !lt(x, y),
+           prove ~(!lt(y, x))
+           <2>1 hypothesis F: !lt(y, x),
+                prove !lt(x, x) by hypothesis H, F property !lt_is_transitive
+           <2>f qed by step <2>1 property !lt_is_irreflexive
+      <1>f conclude
+  ;
+
+
+  (** gt is obtained by duality from lt, sometimes called a (strict)
+  preference *)
+
+  let gt(x, y) = !lt(y, x);
+
+  theorem gt_is_lt: all x y : Self,
+    !gt(x, y) <-> !lt(y, x)
+    proof = by definition of gt;
+
+  theorem gt_is_irreflexive: all x : Self, ~(gt(x, x))
+    proof = by property gt_is_lt, !lt_is_irreflexive;
+
+  (** Large ordering is defined from strict ordering *)
+  let leq(x, y) = !lt(x, y) || syntactic_equal(x, y);
+
+  theorem lt_refines_leq: all x y : Self, !lt(x, y) -> !leq(x, y)
+    proof = by definition of leq;
+
+  theorem leq_reflexive : all x : Self, !leq(x, x)
+    proof = by definition of leq;
+
+  theorem leq_antisymmetric: all x y : Self,
+    !leq(x, y) -> !leq(y, x) -> !equal(x, y)
+    proof =
+      <1>1 assume x : Self, y : Self,
+           hypothesis H_xy : !leq(x, y), hypothesis  H_yx: !leq(y, x),
+           prove !equal(x, y)
+           <2>1 hypothesis HH_xy : !lt(x, y) /\ !lt(y, x),
+                prove !equal(x, y)
+                by hypothesis HH_xy
+                   property !lt_is_transitive, !lt_is_irreflexive
+           <2>2 hypothesis HH_xy: !lt(x, y) /\ syntactic_equal(y, x),
+                prove !equal(x, y)
+                by hypothesis HH_xy property !equal_reflexive, !equal_symmetric
+           <2>3 hypothesis HH_xy: syntactic_equal(x, y) /\ !lt(y, x),
+                prove !equal(x, y) by hypothesis HH_xy property equal_reflexive
+           <2>4 hypothesis HH_xy: syntactic_equal(x, y) /\ syntactic_equal(y, x),
+                prove !equal(x, y) by hypothesis HH_xy property !equal_reflexive
+           <2>5 qed by step <2>1, <2>2, <2>3, <2>4
+                       hypothesis H_xy, H_yx
+                       definition of leq
+      <1>f qed by step <1>1 property leq
+  ;
+
+  theorem leq_transitive: all x y z : Self,
+    !leq(x, y) -> !leq(y, z) -> !leq(x, z)
+    proof =
+      <1>1 assume x : Self, y : Self, z : Self,
+           hypothesis  H_xy: !leq(x, y), hypothesis  H_yz: !leq(y, z),
+           prove !leq(x, z)
+           <2>1 hypothesis  H: (!lt(x, y) /\ !lt(y, z)),
+                prove !lt(x, z)
+                by hypothesis H property !lt_is_transitive
+           <2>2 hypothesis  H: (!lt(x, y) /\ syntactic_equal(y, z)),
+                prove !lt(x, z)
+                by hypothesis H
+           <2>3 hypothesis  H: (syntactic_equal(x, y) /\ !lt(y, z)),
+                prove !lt(x, z)
+                by hypothesis H
+           <2>4 hypothesis  H: (syntactic_equal(x, y) /\ syntactic_equal(y, z)),
+                prove !equal(x, z)
+                by hypothesis H property !equal_transitive, !equal_reflexive
+           <2>f qed by step <2>1, <2>2, <2>3, <2>4
+                       hypothesis H_xy, H_yz
+                       definition of leq
+      <1>f qed by step <1>1 property leq
+  ;
+
+end
+;;
+
+(**
+   Here we specify that incomparability is difference
+
+ *)
+species Strict_order =
+
+  inherit Strict_partial_order;
+
+  (** Strict comparability is difference, this is sometimes called weakly
+   connected *)
+
+  let different(x, y) = !lt(x, y) || !lt(y, x);
+
+  proof of different_is_symmetric = by definition of different;
+
+  proof of different_is_irreflexive =
+    by property !lt_is_irreflexive definition of different;
+
+
+
+end
+;;
+
+species Syntactical_setoid =
+
+  inherit Setoid;
+
+  property equal_is_syntactic: all x y : Self, !equal(x, y ) -> x = y;
+
+  proof of equal_symmetric = by property !equal_reflexive, !equal_is_syntactic;
+
+  proof of equal_transitive = by property !equal_reflexive, !equal_is_syntactic;
+
+
+end;;
+
+(** Restoring compatibility between strict and large ordering *)
+species Strictly_ordered_set =
+  (** Here we cannot inherit from Ordered_set because lt is defined there *)
+
+  inherit Syntactical_setoid, Strict_order;
+
+  theorem leq_from_lt: all x y : Self,
+    !leq(x, y) <-> (!lt(x, y) \/ syntactic_equal(x, y))
+    proof = by definition of leq;
+
+  (** An ordering is total if the &leq; relation is complete *)
+  property total_order: all x y : Self,
+    !leq(x, y) \/ leq(y, x);
+
+  theorem total_order_strict: all x y : Self,
+    !lt(x, y) \/ !lt(y, x) \/ syntactic_equal(x, y)
+    proof = by property leq_from_lt, total_order;
+
+  proof of different_is_complete =
+    <1>1 assume x : Self, y : Self, z : Self,
+         hypothesis H : !different(x, y),
+         prove (!different(x, z) \/ !different(y, z))
+         <2>1 hypothesis Hxz : !lt(x, z),
+              prove (!different(x, z) \/ !different(y, z))
+              by hypothesis Hxz
+                 definition of different
+         <2>2 hypothesis Hxz : !lt(z, x),
+              prove (!different(x, z) \/ !different(y, z))
+              by hypothesis Hxz
+                 definition of different
+         <2>3 hypothesis Hxz : syntactic_equal(x, z),
+              prove (!different(x, z) \/ !different(y, z))
+              by hypothesis H, Hxz
+                 property lt_is_irreflexive
+                 definition of different
+         <2>f qed by step <2>1, <2>2, <2>3
+                     property total_order_strict, different
+     <1>f qed by step <1>1 property different
+  ;
+
+  theorem different_is_syntactic: all x y : Self, (~(x = y)) -> different(x, y)
+    proof =
+    <1>1 assume x : Self, y : Self,
+         hypothesis  D_xy: ~(x = y),
+         prove !different(x, y)
+         <3>1 hypothesis  L_xy: !leq(x, y),
+              prove !lt(x, y)
+              by hypothesis D_xy, L_xy
+                 property leq_from_lt, lt_is_irreflexive
+         <3>2 hypothesis  L_yx: !leq(y, x),
+              prove !lt(y, x)
+              by hypothesis L_yx, D_xy
+                 property leq_from_lt, lt_is_irreflexive
+         <3>f qed by step <3>1, <3>2
+                     property different_is_symmetric, !total_order
+                     definition of different
+    <1>f qed by step <1>1 property different;
+
+  proof of equal_is_syntactic =
+    by property different_is_syntactic, different_is_not_same;
+
+end
+;;

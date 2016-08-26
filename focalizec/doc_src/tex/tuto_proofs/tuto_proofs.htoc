@@ -1,0 +1,38 @@
+\begin{tocenv}
+\tocitem \@locref{sec1}{\begin{@norefs}\@print{1}\quad{}Forewords{}\end{@norefs}}
+\begin{tocenv}
+\tocitem \@locref{sec2}{\begin{@norefs}\@print{1.1}\quad{}Content{}\end{@norefs}}
+\tocitem \@locref{sec3}{\begin{@norefs}\@print{1.2}\quad{}Notations and Recommandations{}\end{@norefs}}
+\end{tocenv}
+\tocitem \@locref{sec4}{\begin{@norefs}\@print{2}\quad{}Dealing with first order logic theorems{}\end{@norefs}}
+\begin{tocenv}
+\tocitem \@locref{sec5}{\begin{@norefs}\@print{2.1}\quad{}A so simple property: fully automated proof{}\end{@norefs}}
+\tocitem \@locref{</span>sec6<span style="color:blue">}{\begin{@norefs}\@print{2.2}\quad{}</span><span style="color:blue">Still simple but easier with \zenon{}</span><span style="color:blue">\end{@norefs}}
+\end{tocenv}
+\tocitem \@locref{</span>sec7<span style="color:blue">}{\begin{@norefs}\@print{3}\quad{}</span><span style="color:blue">Playing with programs{}</span><span style="color:blue">\end{@norefs}}
+\begin{tocenv}
+\tocitem \@locref{</span>sec8<span style="color:blue">}{\begin{@norefs}\@print{3.1}\quad{}</span><span style="color:blue">Introducing functions{}</span><span style="color:blue">\end{@norefs}}
+\tocitem \@locref{</span>sec9<span style="color:blue">}{\begin{@norefs}\@print{3.2}\quad{}</span><span style="color:blue">Introducing pairs{}</span><span style="color:blue">\end{@norefs}}
+\tocitem \@locref{</span>sec10<span style="color:blue">}{\begin{@norefs}\@print{3.3}\quad{}</span><span style="color:blue">Playing with pairs{}</span><span style="color:blue">\end{@norefs}}
+\tocitem \@locref{</span>sec11<span style="color:blue">}{\begin{@norefs}\@print{3.4}\quad{}</span><span style="color:blue">Introducing inductive types{}</span><span style="color:blue">\end{@norefs}}
+\tocitem \@locref{</span>sec12<span style="color:blue">}{\begin{@norefs}\@print{3.5}\quad{}</span><span style="color:blue">When automatic induction fails{}</span><span style="color:blue">\end{@norefs}}
+\begin{tocenv}
+\tocitem \@locref{</span>sec13<span style="color:blue">}{\begin{@norefs}\@print{3.5.1}\quad{}</span><span style="color:blue">Simple example{}</span><span style="color:blue">\end{@norefs}}
+\tocitem \@locref{</span>sec14<span style="color:blue">}{\begin{@norefs}\@print{3.5.2}\quad{}</span><span style="color:blue">More complex example{}</span><span style="color:blue">\end{@norefs}}
+\end{tocenv}
+\tocitem \@locref{</span>sec15<span style="color:red">}{\begin{@norefs}\@print{3.6}\quad{}</span><span style="color:red">Introducing lemmas{}</span><span style="color:red">\end{@norefs}}
+\end{tocenv}
+\tocitem \@locref{</span>sec16<span style="color:red">}{\begin{@norefs}\@print{4}\quad{}</span><span style="color:red">A first simple program{}</span><span style="color:red">\end{@norefs}}
+\begin{tocenv}
+\tocitem \@locref{</span>sec17<span style="color:red">}{\begin{@norefs}\@print{4.1}\quad{}</span><span style="color:red">The goal{}</span><span style="color:red">\end{@norefs}}
+\tocitem \@locref{</span>sec18<span style="color:green">}{\begin{@norefs}\@print{4.2}\quad{}</span><span style="color:green">Modeling data structures{}</span><span style="color:green">\end{@norefs}}
+\tocitem \@locref{</span>sec19<span style="color:green">}{\begin{@norefs}\@print{4.3}\quad{}</span><span style="color:green">The main algorithm{}</span><span style="color:green">\end{@norefs}}
+\tocitem \@locref{</span>sec20<span style="color:green">}{\begin{@norefs}\@print{4.4}\quad{}</span><span style="color:green">Introducing the main property{}</span><span style="color:green">\end{@norefs}}
+\tocitem \@locref{</span>sec21<span style="color:green">}{\begin{@norefs}\@print{4.5}\quad{}</span><span style="color:green">Making the proof{}</span><span style="color:green">\end{@norefs}}
+\begin{tocenv}
+\tocitem \@locref{</span>sec22<span style="color:green">}{\begin{@norefs}\@print{4.5.1}\quad{}</span><span style="color:green">Proving the first lemma{}</span><span style="color:green">\end{@norefs}}
+\tocitem \@locref{</span>sec23<span style="color:green">}{\begin{@norefs}\@print{4.5.2}\quad{}</span><span style="color:green">Proving other lemmas : THE END{}</span><span style="color:green">\end{@norefs}}
+\end{tocenv}
+\end{tocenv}
+\tocitem \@locref{</span>sec24<span style="color:green">}{\begin{@norefs}\@print{5}\quad{}</span><span style="color:green">Conclusion{}</span><span style="color:green">\end{@norefs}}
+\end{tocenv}

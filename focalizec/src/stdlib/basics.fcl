@@ -1,0 +1,1039 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                        FoCaLize compiler                            *)
+(*                                                                     *)
+(*            Renaud Rioboo                                            *)
+(*            François Pessaux                                         *)
+(*            Pierre Weis                                              *)
+(*            Damien Doligez                                           *)
+(*                                                                     *)
+(*                               LIP6  -  INRIA Rocquencourt           *)
+(*                                                                     *)
+(*  Copyright 2007 - 2009 LIP6 and INRIA                               *)
+(*            2012 ENSTA ParisTech                                     *)
+(*  Distributed only by permission.                                    *)
+(*                                                                     *)
+(***********************************************************************)
+
+(** {3 The very basic definitions for focalize code} *)
+
+(** [basics.fcl] contents:
+    - built-in or (almost) mandatory type definitions,
+    - built-in or (almost) mandatory data definitions,
+    - basic properties and theorems on those types and data. *)
+
+(** {6 Type definitions} *)
+
+type int =
+  internal (* Internal#int *)
+  external
+  | caml -> {* int *}
+  | coq -> {* Z *}
+  | dedukti -> {* dk_int.int. def call_by_value_int__t := dk_int.call_by_value_int *}
+;;
+
+type unit =
+  internal (* Internal#unit *)
+  | ()
+  external
+  | caml -> {* unit *}
+  | coq -> {* coq_builtins.bi__unit *}  (* FoCaLize's Coq definition of builtin. *)
+  | dedukti -> {* dk_builtins.unit. def call_by_value_unit__t := dk_builtins.call_by_value_unit *}
+
+  with () =
+  | caml -> {* () *}
+  | coq -> {* coq_builtins.Void *}
+  | dedukti -> {* dk_builtins.tt *}
+;;
+
+type float =
+  internal (* Internal#float *)
+  external
+  | caml -> {* float *}
+  | coq -> {* R *}  (* From the Reals module. *)
+  | dedukti -> {* dk_builtins.float *}
+;;
+
+type char =
+  internal (* Internal#char *)
+  external
+  | caml -> {* char *}
+  | coq -> {* ascii *}
+  | dedukti -> {* char. def call_by_value_char__t := dk_char.call_by_value_char *}
+;;
+
+type string =
+  internal (* Internal#string *)
+  external
+  | caml -> {* string *}
+  | coq -> {* string *}  (* From the Ascii module. *)
+  | dedukti -> {* string. def call_by_value_string__t := dk_string.call_by_value_string *}
+;;
+
+type bool =
+  internal (* Internal#bool *)
+  | True
+  | False
+  external
+  | caml -> {* bool *}
+  (* Uggly hack to insert the induction principles below the type definition.
+     We just alias the principles coming from the Bool modules of Coq and Dedukti. *)
+  | coq -> {* bool.
+              Definition bool__t_ind := bool_ind.
+              Definition bool__t_rect := bool_rect.
+              Definition bool__t_rec := bool_rec
+           *}  (* Builtin of Coq *)
+  | dedukti -> {* dk_bool.bool.
+                  def true := dk_bool.true.
+                  def false := dk_bool.false.
+                  def match__true := dk_bool.match__true.
+                  def match__false := dk_bool.match__false.
+                  def call_by_value_bool__t := dk_bool.call_by_value_bool *}
+
+  with True =
+  | caml -> {* true *}
+  | coq -> {* true *}
+  | dedukti -> {* dk_bool.true *}
+
+  and False =
+  | caml -> {* false *}
+  | coq -> {* false *}
+  | dedukti -> {* dk_bool.false *}
+;;
+
+(** Note that it is impossible to alias the type of propositions [prop__t] to
+   Coq [Prop] here, since "prop" is a keyword in FoCaLiZe, hence this makes a
+   crude syntax error. We hard-define it in coq_builtins.v and dk_logic.sk. *)
+
+type list ('a) =
+  internal
+  | []
+  | ( :: ) ('a, list ('a))
+  external
+  | caml -> {* 'a list *}
+  (* Uggly hack to insert the induction principles below the type definition.
+     We just alias the principles coming from the List modules of Coq and Dedukti.
+     Was bug #53. *)
+  | coq -> {* (List.list __var_a).
+              Definition list__t_ind := list_ind.
+              Definition list__t_rect := list_rect.
+              Definition list__t_rec := list_rec *}
+  | dedukti -> {* list __var_a.
+                  def match__nil := dk_list.match__nil.
+                  def match__cons := dk_list.match__cons.
+                  def call_by_value_list__t := dk_list.call_by_value_list *}
+
+  with [] =
+  | caml -> {* [] *}
+  | coq -> {* List.nil *}
+  | dedukti -> {* nil *}
+
+  and ( :: ) =
+  | caml -> {* ( :: ) *}
+  | coq -> {* List.cons *}
+  | dedukti -> {* cons *}
+;;
+
+(** {6 Basic operations on basic types} *)
+
+(** {7 Operations on booleans} *)
+let ( && ) =
+  internal bool -> bool -> bool
+  external
+  | caml -> {* Ml_builtins.bi__and_b *}
+  | coq -> {* coq_builtins.bi__and_b *}
+  | dedukti -> {* dk_bool.and *}
+;;
+
+
+let ( || ) =
+  internal bool -> bool -> bool
+  external
+  | caml -> {* Ml_builtins.bi__or_b *}
+  | coq -> {* coq_builtins.bi__or_b *}
+  | dedukti -> {* dk_bool.or *}
+;;
+
+
+let ( ~~ ) =
+  internal bool -> bool
+  external
+  | caml -> {* Ml_builtins.bi__not_b *}
+  | coq -> {* coq_builtins.bi__not_b *}
+  | dedukti -> {* dk_bool.not *}
+;;
+
+
+let ( |<>| ) =
+  internal bool -> bool -> bool
+  external
+  | caml -> {* Ml_builtins.bi__xor_b *}
+  | coq -> {* coq_builtins.bi__xor_b *}
+  | dedukti -> {* dk_bool.xor *}
+;;
+
+
+(** {7 Operations on pairs} *)
+let pair (x, y) = (x, y) ;;
+
+
+let fst (x) =
+  match x with
+  | (v, _) -> v
+;;
+
+
+let snd (x) =
+  match x with
+  | (_, v) -> v
+;;
+
+(** {7 Operations on strings} *)
+
+(* Concatenation. *)
+let ( ^ ) =
+  internal string -> string -> string
+  external
+  | caml -> {* Ml_builtins.bi__string_concat *}
+  | coq -> {* String.append *}
+  | dedukti -> {* dk_string.append *}
+;;
+
+
+let ( <^ ) =
+  internal string -> string -> bool
+  external
+  | caml -> {* Ml_builtins.bi__string_lt *}
+  | coq -> {* fun (x : string__t) (y : string__t) => true *}
+  | dedukti -> {* dk_string.lt *}
+;;
+
+(** {7 Operations on integers} *)
+
+(** {8 Comparisons on integers} *)
+let ( =0x ) =
+  internal int -> int -> bool
+  external
+  | caml -> {* Ml_builtins.bi__int_eq *}
+  | coq -> {* coq_builtins.bi__int_eq *}
+  | dedukti -> {* dk_int.eq *}
+;;
+
+
+let ( < ) =
+  internal int -> int -> bool
+  external
+  | caml -> {* Ml_builtins.bi__int_lt *}
+  | coq -> {* coq_builtins.bi__int_lt *}
+  | dedukti -> {* dk_int.lt *}
+;;
+
+
+let ( <= ) =
+  internal int -> int -> bool
+  external
+  | caml -> {* Ml_builtins.bi__int_leq *}
+  | coq -> {* coq_builtins.bi__int_leq *}
+  | dedukti -> {* dk_int.leq *}
+;;
+
+
+let ( >= ) =
+  internal int -> int -> bool
+  external
+  | caml -> {* Ml_builtins.bi__int_geq *}
+  | coq -> {* coq_builtins.bi__int_geq *}
+  | dedukti -> {* dk_int.geq *}
+;;
+
+
+let ( > ) =
+  internal  int -> int -> bool
+  external
+  | caml -> {* Ml_builtins.bi__int_gt *}
+  | coq -> {* coq_builtins.bi__int_gt *}
+  | dedukti -> {* dk_int.gt *}
+;;
+
+
+(** {8 Arithmetic operations for integers} *)
+let ( + ) =
+  internal int -> int -> int
+  external
+  | caml -> {* Ml_builtins.bi__int_plus *}
+  | coq -> {* coq_builtins.bi__int_plus *}
+  | dedukti -> {* dk_int.plus *}
+;;
+
+
+let ( - ) =
+  internal int -> int -> int
+  external
+  | caml -> {* Ml_builtins.bi__int_minus *}
+  | coq -> {* coq_builtins.bi__int_minus *}
+  | dedukti -> {* dk_int.sub *}
+;;
+
+
+let ( ~0x ) =
+  internal int -> int
+  external
+  | caml -> {* Ml_builtins.bi__int_opposite *}
+  | coq -> {* coq_builtins.bi__int_opposite *}
+  | dedukti -> {* dk_int.opp *}
+;;
+
+
+let ( * ) =
+  internal int -> int -> int
+  external
+  | caml -> {* Ml_builtins.bi__int_mult *}
+  | coq -> {* coq_builtins.bi__int_mult *}
+  | dedukti -> {* dk_int.mult *}
+;;
+
+
+(** Euclidian division quotient. *)
+let ( / ) =
+  internal int -> int -> int
+  external
+  | caml -> {* Ml_builtins.bi__int_div *}
+  | coq -> {* coq_builtins.bi__int_div *}
+  | dedukti -> {* dk_int.quo *}
+;;
+
+
+(** Euclidian division rest. *)
+let ( % ) =
+  internal int -> int -> int
+  external
+  | caml -> {* Ml_builtins.bi__int_mod *}
+  | coq -> {* coq_builtins.bi__int_mod *}
+  | dedukti -> {* dk_int.mod *}
+;;
+
+
+(** Successor. *)
+let int_succ (x : int) : int = x + 1 ;;
+
+
+(** Predecessor. *)
+let int_pred (x : int) : int = x - 1 ;;
+
+
+(** Maximum and minimum of two integer values. *)
+let int_max =
+  internal int -> int -> int
+  external
+  | caml -> {* Ml_builtins.bi__int_max *}
+  | coq -> {* coq_builtins.bi__int_max *}
+  | dedukti -> {* dk_int.max *}
+;;
+
+
+let int_min =
+  internal int -> int -> int
+  external
+  | caml -> {* Ml_builtins.bi__int_min *}
+  | coq -> {* coq_builtins.bi__int_min *}
+  | dedukti -> {* dk_int.min *}
+;;
+
+
+(** Absolute value for integers. *)
+let int_abs =
+  internal int -> int
+  external
+  | caml -> {* Ml_builtins.bi__int_abs *}
+  | coq -> {* coq_builtins.bi__int_abs *}
+  | dedukti -> {* dk_int.abs *}
+;;
+
+
+(** String convertions for integers. [Unsure] *)
+let string_of_int =
+  internal int -> string
+  external
+  | caml -> {* Ml_builtins.bi__string_of_int *}
+  | coq -> {* fun (x : int__t) => "42"%string *}
+  | dedukti -> {* dk_string.of_int *}
+;;
+
+
+let int_of_string =
+  internal string -> int
+  external
+  | caml -> {* Ml_builtins.bi__int_of_string *}
+  | coq -> {* fun (x : string__t) => 42 *}
+  | dedukti -> {* dk_string.to_int *}
+;;
+
+
+(** {7 Polymorphic equalities} *)
+
+(** {8 Syntactical equality} *)
+
+(** A polymorphic predicate to test equality of obects
+    (two objects are consider equal if and only if they are provably
+    equivalent, i.e. if and only if they have the same
+    semantical meaning, e.g. two character strings with the same character
+    contents). *)
+let ( = ) =
+  internal 'a -> 'a -> bool
+  external
+  | caml -> {* Ml_builtins.bi__syntactic_equal *}
+  | coq -> {* coq_builtins.bi__syntactic_equal _ *}
+  | dedukti -> {* (dk_builtins.eq __var_a) *}
+;;
+
+
+let syntactic_equal = ( = ) ;;
+
+
+(** {7 Basic printing operations} *)
+let print_int =
+  internal int -> unit
+  external
+  | caml -> {* Ml_builtins.bi__print_int *}
+  | coq -> {* fun (x : int__t) => coq_builtins.Void *}
+  | dedukti -> {* (x : dk_int.Int => dk_builtins.tt) *}
+;;
+
+
+let print_newline =
+  internal unit -> unit
+  external
+  | caml -> {* Ml_builtins.bi__print_newline *}
+  | coq -> {* fun (x : unit__t) => coq_builtins.Void *}
+  | dedukti -> {* (x : cc.eT dk_builtins.unit => dk_builtins.tt) *}
+;;
+
+
+let print_string =
+  internal string -> unit
+  external
+  | caml -> {* Ml_builtins.bi__print_string *}
+  | coq -> {* fun (x : string__t) => coq_builtins.Void *}
+  | dedukti -> {* (x : dk_string.String => dk_builtins.tt) *}
+;;
+
+
+(** {6 Basic theorems and properties} *)
+
+(** {7 Theorems on comparisons} *)
+
+(** {8 Polymorphic syntactic equality fundamental theorem} *)
+
+(** The polymorphic syntactic equality is an equivalence relation. *)
+theorem beq_refl :
+  all x : 'a, x = x
+  proof = coq proof {* apply syntactic_equal_refl. Qed. *} ;;
+
+
+theorem beq_symm :
+  all x y : 'a, x = y -> y = x
+  proof = coq proof {* apply syntactic_equal_sym. Qed. *} ;;
+
+
+theorem beq_trans :
+  all x y z : 'a, x = y -> y = z -> x = z
+  proof = coq proof {* apply syntactic_equal_trans. Qed. *} ;;
+
+
+(** {8 Integer comparisons fundamental properties} *)
+theorem int_gt_lt_swap :
+  all x y : int, (x > y) -> (y < x)
+  proof =
+    coq proof {*
+    intros x y. unfold _gt_, _lt_. unfold coq_builtins.bi__int_gt, coq_builtins.bi__int_lt.
+    elim Z_gt_dec. intros. elim Z_lt_dec. intro. compute. trivial. intro.
+    compute. auto with zarith. intro. intro. elim Z_lt_dec. intro. compute.
+    trivial. intro. compute. auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_lt_gt_swap :
+  all x y : int, (x < y) -> (y > x)
+  proof =
+    coq proof {*
+    intros x y. unfold _lt_, _gt_. unfold coq_builtins.bi__int_lt, coq_builtins.bi__int_gt.
+    elim Z_lt_dec. intros. elim Z_gt_dec. intros. compute. trivial. intro.
+    compute. auto with zarith. intros. elim Z_gt_dec. intro. compute. trivial.
+    intro. compute. auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_ge_le_swap :
+  all x y : int , (x >= y) -> (y <= x)
+  proof =
+    coq proof {*
+    intros x y. unfold _gt__equal_, _lt__equal_.
+    unfold coq_builtins.bi__int_geq, coq_builtins.bi__int_leq. elim Z_ge_dec. intros. elim Z_le_dec.
+    intro. compute. trivial. intros. compute. auto with zarith. intros.
+    elim Z_le_dec. intro. compute. trivial. intro. compute. auto with zarith.
+    Qed.
+    *}
+;;
+
+
+theorem int_le_ge_swap :
+  all x y : int , (x <= y) -> (y >= x)
+  proof =
+    coq proof {*
+    intros x y. unfold _lt__equal_, _gt__equal_, coq_builtins.bi__int_leq, coq_builtins.bi__int_geq.
+    elim (Z_le_dec x y). intros. elim (Z_ge_dec y x). intro. auto. intro. auto.
+    compute. compute in H. apply Zle_not_gt in a. apply Zgt_not_le in a.
+    exact a. clear a. apply Znot_le_gt. apply Zlt_not_le. apply Znot_ge_lt.
+    exact b. intros. elim (Z_ge_dec y x). intro. compute. auto. intro. compute.
+    compute in H. exact H. Qed.
+    *}
+;;
+
+
+theorem int_le_not_lt :
+  all x y : int, (x <= y) -> ~ (y < x)
+  proof =
+    coq proof {*
+    intros x y. unfold _lt__equal_, _lt_. unfold coq_builtins.bi__int_leq, coq_builtins.bi__int_lt.
+    elim Z_le_dec. intros. elim Z_lt_dec. intros. compute. intro.
+    auto with zarith. intro. compute. trivial. intros. elim Z_lt_dec. intro.
+    compute. auto with zarith. intro. compute. auto with zarith. Qed.
+    *}
+;;
+
+theorem int_diff_le:
+  all x y : int, y <= x -> 0 <= x -> 0 <= y -> x - y <= x
+  proof = coq proof {*
+  intros x y.  unfold _dash_.  unfold coq_builtins.bi__int_minus.  unfold
+  _lt__equal_.  unfold coq_builtins.bi__int_leq.  elim (Z_le_dec y x).
+  intros H1 H2.  elim (Z_le_dec 0 x).  intros H3 H4.  elim (Z_le_dec 0 y).
+  intros H5 H6.  elim (Z_le_dec (x - y) x).  intros.  auto.
+  intro.  auto.  compute.  auto.  absurd (x - y <= x).  assumption.
+   auto with zarith.
+   auto with zarith.  intros.  elim (Z_le_dec (x - y) x).  intro.
+   auto.
+    intro.  auto.
+    intros foo bar.  elim (Z_le_dec 0 y).
+    intros.  elim (Z_le_dec (x - y) x).  intro.  auto.
+    intro.  auto.
+   intros.  elim (Z_le_dec (x - y) x).  auto.
+    auto.
+    intros G1 G2.  elim (Z_le_dec 0 x).  intro.  intro.  elim (Z_le_dec 0 y).
+    intros.  elim (Z_le_dec (x - y) x).  elim (Z_le_dec (x - y) x);
+    auto.  auto.  intros.  elim (Z_le_dec (x - y) x); auto.  intro.
+    intro.  elim (Z_le_dec 0 y).  intro.  intro.
+    elim (Z_le_dec (x - y) x); auto.  intros.  elim (Z_le_dec (x - y) x).
+    auto.  intros. compute.  trivial.  auto. Qed.
+  *}
+;;
+
+theorem int_diff_lt:
+  all x y : int, y <= x -> 0 <= x -> 0 < y -> x - y < x
+  proof = coq proof {*
+  intros x y.  unfold _dash_, coq_builtins.bi__int_minus, _lt__equal_,
+  _lt_, coq_builtins.bi__int_leq, coq_builtins.bi__int_lt.  elim (Z_le_dec y x).
+  intros H1 H2.  elim (Z_le_dec 0 x).  intros H3 H4.  elim (Z_lt_dec 0 y).
+  intros H5 H6.  elim (Z_lt_dec (x - y) x).  intros.  auto.
+  intro.  auto.  compute.  auto.  absurd (x - y < x).  assumption.
+   auto with zarith.
+   auto with zarith.  intros.  elim (Z_lt_dec (x - y) x).  intro.
+   auto.
+    intro.  auto.
+    intros foo bar.  elim (Z_lt_dec 0 y).
+    intros.  elim (Z_lt_dec (x - y) x).  intro.  auto.
+    intro.  auto.
+   intros.  elim (Z_lt_dec (x - y) x).  auto.
+    auto.
+    intros G1 G2.  elim (Z_le_dec 0 x).  intro.  intro.  elim (Z_lt_dec 0 y).
+    intros.  elim (Z_lt_dec (x - y) x).  elim (Z_lt_dec (x - y) x);
+    auto.  auto.  intros.  elim (Z_lt_dec (x - y) x); auto.  intro.
+    intro.  elim (Z_lt_dec 0 y).  intro.  intro.
+    elim (Z_lt_dec (x - y) x); auto.  intros.  elim (Z_lt_dec (x - y) x).
+    auto.  intros. compute.  trivial.  auto. Qed.
+  *}
+  ;;
+
+theorem int_lt_not_le :
+  all x y : int, (x < y) -> ~ (y <= x)
+  proof =
+    coq proof {*
+    intros x y. unfold _lt_, _lt__equal_. unfold coq_builtins.bi__int_lt, coq_builtins.bi__int_leq.
+    elim Z_lt_dec. intros. elim Z_le_dec. intro. compute. auto with zarith.
+    intro. auto with zarith. intros. elim Z_le_dec. auto with zarith.
+    auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_lt_not_gt :
+  all x y : int, (x < y) -> ~ (x > y)
+  proof =
+    coq proof {*
+    intros x y. unfold _lt_, _gt_. unfold coq_builtins.bi__int_lt, coq_builtins.bi__int_gt.
+    elim (Z_lt_dec x y). intro. simpl. intro. elim (Z_gt_dec x y).
+    simpl. intros. intro. auto with zarith. intro. simpl. auto with zarith.
+    intros. auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_le_not_gt :
+  all x y : int, (x <= y) -> ~ (x > y)
+  proof =
+    coq proof {*
+    intros x y; unfold _lt__equal_, _gt_  in |- *.
+    unfold coq_builtins.bi__int_leq , coq_builtins.bi__int_gt. elim (Z_le_dec x y). intros H.
+    intros b; clear b. elim (Z_gt_dec x y). intros H1; absurd (x > y)%Z.
+    apply Zle_not_gt; trivial. trivial.
+    compute in |- *; trivial. compute in |- *; trivial. Qed.
+    *}
+;;
+
+
+theorem int_gt_not_le :
+  all x y : int, (x > y) -> ~ (x <= y)
+  proof =
+    coq proof {*
+    intros x y. unfold _gt_, _lt__equal_. unfold coq_builtins.bi__int_gt, coq_builtins.bi__int_leq.
+    elim Z_gt_dec. intros. elim Z_le_dec. intro. compute. auto with zarith.
+    intro. compute. auto with zarith. intros. elim Z_le_dec. auto with zarith.
+    intro. auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_not_ge_lt :
+  all x y : int, ~ (x >= y) -> (x < y)
+  proof =
+    coq proof {*
+    intros x y. unfold _gt__equal_, _lt_. unfold coq_builtins.bi__int_geq, coq_builtins.bi__int_lt.
+    elim Z_ge_dec. intros. elim Z_lt_dec. intro. compute. trivial. intro.
+    compute. compute in H. auto with zarith. intros. elim Z_lt_dec. intro.
+    compute. trivial. intro. compute. compute in H. auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_not_lt_ge :
+  all x y : int, ~ (x < y) -> (x >= y)
+  proof =
+    coq proof {*
+    intros x y. unfold _lt_, _gt__equal_. unfold coq_builtins.bi__int_lt, coq_builtins.bi__int_geq.
+    elim Z_lt_dec. intros. elim Z_ge_dec. intro.
+    compute. trivial. intro. compute. compute in H. auto with zarith.
+    intro. intro. elim Z_ge_dec. intro. compute. trivial. intro. compute.
+    auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_not_gt_le :
+  all x y : int, ~ (x > y) -> (x <= y)
+  proof =
+    coq proof {*
+    intros x y. unfold _gt_, _lt__equal_. unfold coq_builtins.bi__int_gt, coq_builtins.bi__int_leq.
+    elim Z_gt_dec. intro.  intro. elim Z_le_dec. intro. compute. trivial.
+    intro. compute. compute in H. apply Zgt_not_le in a. auto with zarith.
+    intro. intro. elim Z_le_dec. intro. compute. trivial. intro. compute.
+    auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_not_le_gt :
+  all x y : int, ~ (x <= y) -> (x > y)
+  proof =
+    coq proof {*
+    intros x y. unfold _lt__equal_, _gt_. unfold coq_builtins.bi__int_leq, coq_builtins.bi__int_gt.
+    elim Z_le_dec. intros. elim Z_gt_dec. intro. compute. trivial. intro.
+    compute. compute in H. auto with zarith. intros. elim Z_gt_dec. intro.
+    compute. trivial. intro. compute. compute in H. auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_lt_le_trans :
+  all x y z : int,  x < y -> y <= z -> x < z
+  proof =
+    coq proof {*
+    intros x y z. unfold _lt_, _lt__equal_, coq_builtins.bi__int_lt, coq_builtins.bi__int_leq in |- *.
+    elim (Z_lt_dec x y). elim (Z_le_dec y z).
+    intros Hle Hlt foo bar; clear foo bar.
+    elim (Z_lt_dec x z). intros H; compute in |- *; trivial.
+    intros H; absurd (x < z)%Z; trivial. apply (Zlt_le_trans x y z); trivial.
+    intros b a H Habs; compute in |- *; contradiction.
+    intros b H; compute in H; contradiction. Qed.
+    *}
+;;
+
+
+theorem int_le_refl :
+  all x y : int, x = y -> x <= y
+  proof =
+    coq proof {*
+    intros x y. unfold _lt__equal_. unfold coq_builtins.bi__int_leq. unfold _equal_.
+    elim Z_le_dec. intro. intro. compute. trivial. intros. compute.
+    apply Znot_le_gt in b.
+    apply zenon_syntactic_equal with (S := int__t) (x := x) (y := y).
+    intros. apply zenon_focal_eqdec. intro. apply Zgt_not_le in b.
+    auto with zarith. trivial. Qed.
+    *}
+;;
+
+
+theorem int_le_antisymm:
+  all x y : int, x <= y -> y <= x -> x = y
+  proof =
+    coq proof {*
+    intros x y.
+    unfold _lt__equal_, coq_builtins.bi__int_leq in |- *.
+    elim (Z_le_dec x y); elim (Z_le_dec y x).
+    intros H1 H2. intros b c; clear b c. replace x with y.
+    eapply beq_refl. apply Zle_antisym; trivial.
+    intros b a H; clear H a.
+    compute in |- *; intros Habs; eapply False_ind; trivial.
+    intros a b Habs H; clear H a; compute in Habs; eapply False_ind; trivial.
+    intros a b Habs H; clear H a; compute in Habs; eapply False_ind; trivial.
+    Qed.
+    *}
+;;
+
+theorem int_le_trans:
+  all x y z : int, x <= y -> y <= z -> x <= z
+  proof =
+    coq proof {*
+    unfold _lt__equal_, coq_builtins.bi__int_leq in |- *; intros x y z H1 H2.
+    apply dec_IsTrue. cut (x <= y)%Z. cut (y <= z)%Z.
+    eauto with zarith. eapply IsTrue_dec. apply H2.
+    eapply IsTrue_dec; apply H1. Qed.
+    *}
+;;
+
+
+theorem int_lt_irrefl :
+  all x y : int, x < y -> ~ x = y
+  proof =
+    coq proof {*
+    intros x y. unfold _lt_. unfold coq_builtins.bi__int_lt. elim Z_lt_dec. intros.
+    compute in H. intro. unfold _equal_ in H0.
+    apply zenon_syntactic_equal with (S := int__t) (x := x) (y := y).
+    intro. apply zenon_focal_eqdec. auto with zarith. apply Zlt_not_eq.
+    trivial. trivial. intro. compute. intros. trivial. Qed.
+    *}
+;;
+
+
+theorem int_gt_or_le :
+  all x y : int, (x > y) \/ (x <= y)
+  proof =
+    coq proof {*
+    intros x y. unfold _gt_, _lt__equal_. unfold coq_builtins.bi__int_leq, coq_builtins.bi__int_gt.
+    elim (Z_gt_dec x y). intro H. elim (Z_le_dec x y). intro. compute.
+    auto. intro. compute. auto. intro. elim (Z_le_dec x y). intro. compute.
+    right. auto. intro. compute. absurd (~ x > y). auto. auto. Qed.
+    *}
+;;
+
+
+theorem int_gt_implies_ge :
+  all x y : int, x > y -> x >= y
+  proof =
+    coq proof {*
+    intros x y. unfold _gt_, _gt__equal_. unfold coq_builtins.bi__int_gt, coq_builtins.bi__int_geq.
+    elim (Z_gt_dec x y). intros. compute in H. elim (Z_ge_dec x y). intros.
+    compute. auto. intro. compute. apply Znot_ge_lt in b. auto with zarith.
+    intros. compute in H. elim (Z_ge_dec x y). intro. compute. auto. intro.
+    compute. assumption. Qed.
+    *}
+;;
+
+
+theorem int_diff_ge_is_pos : all x y : int, x >= y -> x - y >= 0
+proof =
+  (* Heavy use of doc:
+       coq_8_4_stdlib/Coq.ZArith.Zorder.html
+       coq_8_4_stdlib/Coq.ZArith.BinInt.html *)
+    coq proof {*
+    intros x y. unfold _gt_, _gt__equal_, _dash_.
+    unfold coq_builtins.bi__int_gt, coq_builtins.bi__int_geq, coq_builtins.bi__int_minus. elim (Z_ge_dec x y).
+    intros. compute in H. elim (Z_ge_dec (x - y) 0). intros. compute. auto.
+    intros. compute. apply Zge_le in a.  (* n <= m -> m >= n *)
+    elim b. apply Zle_ge. apply Zle_minus_le_0.  (* m <= n -> 0 <= n - m *)
+    assumption. intro. intro. elim (Z_ge_dec (x - y) 0). intros. compute.
+    auto. intros. compute. compute in H. assumption. Qed.
+    *}
+;;
+
+
+(** {7 Theorems for integer operations} *)
+theorem int_0_plus:
+  all x y : int, x = 0 -> x + y = y
+  proof =
+    coq proof {*
+      unfold coq_builtins.bi__int_plus in |- *; intros x y Hxz;
+      unfold _equal_, syntactic_equal;
+      apply EQ_syntactic_equal; replace x with 0%Z; eauto with zarith.
+      symmetry  in |- *. apply decidable. apply Z_eq_dec. assumption. Qed.
+    *}
+;;
+
+
+theorem int_lt_le_S:
+  all x y : int, x < y -> x + 1 <= y
+  proof =
+    coq proof {*
+      unfold _lt_, _lt__equal_, _plus_ in |- *; intros x y Hlt;
+      unfold coq_builtins.bi__int_lt, coq_builtins.bi__int_leq, coq_builtins.bi__int_plus;
+      apply dec_IsTrue; fold (Zsucc x) in |- *; apply Zlt_le_succ;
+      trivial. exact (IsTrue_dec Hlt). Qed.
+    *}
+;;
+
+
+theorem int_plus_assoc:
+  all x y z : int, (x + y) + z = x + (y + z)
+  proof =
+    coq proof {*
+      intros x y z; unfold _equal_, syntactic_equal;
+      apply EQ_syntactic_equal; auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_plus_commute:
+  all x y  : int, x + y = y + x
+  proof =
+    coq proof {*
+      intros x y; unfold _equal_, syntactic_equal; apply EQ_syntactic_equal;
+      auto with zarith. Qed.
+    *}
+;;
+
+
+theorem int_plus_plus:
+  all x y z t : int,
+  x = y -> z = t -> x + z = y + t
+  proof =
+    coq proof {*
+      intros x y z t H1 H2;
+      unfold _equal_;
+      apply EQ_syntactic_equal; replace y with x. replace t with z. reflexivity.
+      apply decidable. apply Z_eq_dec. assumption.
+      apply decidable. apply Z_eq_dec. assumption. Qed.
+    *}
+;;
+
+
+theorem int_le_plus_plus:
+  all x y z t : int, x <= y -> z <= t -> x + z <= y + t
+  proof =
+    coq proof {*
+      unfold _plus_, _lt__equal_ in |- *; intros x y z t H1 H2;
+      unfold coq_builtins.bi__int_leq, coq_builtins.bi__int_plus, coq_builtins.bi__int_plus;
+      apply dec_IsTrue; apply Zplus_le_compat;
+      [ exact (IsTrue_dec H1) | exact (IsTrue_dec H2) ]. Qed.
+    *}
+;;
+
+
+theorem int_min_le:
+  all x y z : int, (z <= x /\ z <= y) -> z <= int_min (x, y)
+  proof =
+    coq proof {*
+      intros x y z H; elim H; intros H1 H2; clear H;
+      unfold int_min in |- *; unfold coq_builtins.bi__int_min; elim (Z_lt_dec x y);
+      intros H; trivial. Qed.
+    *}
+;;
+
+
+theorem int_min_le2:
+  all x y z : int, z <= int_min (x, y) -> (z <= x /\ z <= y)
+  proof =
+    coq proof {*
+      intros x y z; unfold int_min in |- *.
+      unfold coq_builtins.bi__int_min.
+      case (Z_lt_dec x y); intros H1 H2; split; trivial.
+      apply int_le_trans with x; trivial. unfold _lt__equal_, coq_builtins.bi__int_leq;
+      apply dec_IsTrue; apply Zlt_le_weak; trivial.
+      apply int_le_trans with y; trivial.
+      unfold _lt__equal_, coq_builtins.bi__int_leq; apply dec_IsTrue.
+      elim (Zle_or_lt y x); trivial.   intros Habs; absurd (x < y)%Z; trivial.
+      Qed.
+    *}
+;;
+
+
+theorem int_plus_minus: all x y z : int,
+  x + y = z -> (y = z - x)
+  proof =
+    coq proof {*
+      intros x y z; unfold syntactic_equal in |- *;
+      intros H;
+      unfold coq_builtins.bi__int_minus, _equal_, syntactic_equal;
+      apply EQ_syntactic_equal; apply Zplus_minus_eq;
+      symmetry  in |- *; apply (decidable _ _ _ (Z_eq_dec (x + y) z) H). Qed.
+    *}
+;;
+
+
+theorem int_minus_plus:
+  all x y z : int,
+  x - y = z -> x = y + z
+  proof =
+    coq proof {*
+      intros x y z; unfold syntactic_equal in |- *;
+      intros H;
+      unfold coq_builtins.bi__int_minus, _equal_, syntactic_equal;
+      apply EQ_syntactic_equal; rewrite <- (Zplus_minus y x);
+      apply Zplus_eq_compat; trivial; apply decidable. apply Z_eq_dec. assumption.      Qed.
+    *}
+;;
+
+
+(** {3 Basic species definitions} *)
+let focalize_error =
+  internal string -> 'a
+  external
+  | caml -> {* Ml_builtins.bi__focalize_error *}
+  | coq -> {* coq_builtins.focalize_error *}
+  | dedukti -> {* (s : dk_string.String => dk_fail.fail __var_a) *}
+;;
+
+
+(** A [Basic_object] value is a normal blurb on which we do some things.
+    This is the root of the species' hierarchy. *)
+species Basic_object =
+  (* Generic print function. *)
+  let print (_x : Self) = "<abst>" ;
+  (* Generic parse function. *)
+  let parse (_x : string) : Self = #focalize_error ("not parsable") ;
+end
+;;
+
+
+(** Embed a FoCaLiZe function of type 'a -> 'a -> bool into a *property* that
+    it is a well-founded order. This is *not* a theorem ! This is a somewhat
+    of logical let indeed. *)
+let is_well_founded =
+  internal ('a -> 'a -> bool) -> prop
+  external
+  | caml -> {* (fun _ -> assert false) *}  (* Never used for Ocaml code generation. *)
+  | coq -> {* (fun f => well_founded (fun x y => Is_true (f x y))) *}
+  | dedukti -> {* (f : (cc.eT __var_a -> cc.eT __var_a -> cc.eT bool__t) => dk_logic.True) *}
+;;
+
+
+(** Projections used for termination proofs by order or measure. These
+    definitions are bound to their counterpart in coq_builtins.v. *)
+
+(** Rightmost level-1 projection of any tuple (..., x) *)
+let __tpl_lastprj1 =
+  internal ('a * 'b) -> 'b
+  external
+  | caml -> {* (fun _ -> assert false) *}  (* Never used for Ocaml code generation. *)
+  | coq -> {* (coq_builtins.__tpl_lastprj1 __var_a __var_b) *}
+  | dedukti -> {* (dk_tuple.snd __var_a __var_b) *}
+;;
+
+
+(** First projection of a 2-uple (x, _) *)
+let __tpl_firstprj2 =
+  internal ('a * 'b) -> 'a
+  external
+  | caml -> {* (fun _ -> assert false) *}  (* Never used for Ocaml code generation. *)
+  | coq -> {* (coq_builtins.__tpl_firstprj2 __var_a __var_b) *}
+  | dedukti -> {* (dk_tuple.fst __var_a __var_b) *}
+;;
+
+(** Rightmost level-2 projection of any tuple (...,(x, _)) *)
+let __tpl_lastprj2 =
+  internal ('a * 'b * 'c) -> 'b
+  external
+  | caml -> {* (fun _ -> assert false) *}  (* Never used for Ocaml code generation. *)
+  | coq -> {* (coq_builtins.__tpl_lastprj2 __var_a __var_b __var_c) *}
+  | dedukti -> {* (t : dk_tuple.Prod __var_a (dk_tuple.prod __var_b __var_c) =>
+                   dk_tuple.fst __var_b __var_c
+                      (dk_tuple.snd __var_a (dk_tuple.prod __var_b __var_c) t)) *}
+;;
+
+(** First projection of a 3-uple (x, (_, _)) *)
+let __tpl_firstprj3 =
+  internal ('a * 'b * 'c) -> 'a
+  external
+  | caml -> {* (fun _ -> assert false) *}  (* Never used for Ocaml code generation. *)
+  | coq -> {* (coq_builtins.__tpl_firstprj3 __var_a __var_b __var_c) *}
+  | dedukti -> {* __tpl_firstprj2 __var_a (dk_tuple.prod __var_b __var_c) *}
+;;
+
+(** Rightmost level-3 projection of any tuple (...,(x, (_, _))) *)
+let __tpl_lastprj3 =
+  internal ('a * 'b * 'c * 'd) -> 'b
+  external
+  | caml -> {* (fun _ -> assert false) *}  (* Never used for Ocaml code generation. *)
+  | coq -> {* (coq_builtins.__tpl_lastprj3 __var_a __var_b __var_c __var_d) *}
+  | dedukti -> {* __tpl_lastprj2 __var_a __var_b (dk_tuple.prod __var_c __var_d) *}
+;;
+
+(** First projection of a 4-uple (x, (_, (_, _))) *)
+let __tpl_firstprj4 =
+  internal ('a * 'b * 'c * 'd) -> 'a
+  external
+  | caml -> {* (fun _ -> assert false) *}  (* Never used for Ocaml code generation. *)
+  | coq -> {* (coq_builtins.__tpl_firstprj4 __var_a __var_b __var_c __var_d) *}
+  | dedukti -> {* __tpl_firstprj3 __var_a __var_b (dk_tuple.prod __var_c __var_d) *}
+;;
+
+(** Rightmost level-4 projection of any tuple (...,(x, (_, (_, _)))) *)
+let __tpl_lastprj4 =
+  internal ('a * 'b * 'c * 'd * 'e) -> 'b
+  external
+  | caml -> {* (fun _ -> assert false) *}  (* Never used for Ocaml code generation. *)
+  | coq -> {* (coq_builtins.__tpl_lastprj4 __var_a __var_b __var_c __var_d __var_e) *}
+  | dedukti -> {* __tpl_lastprj3 __var_a __var_b __var_c (dk_tuple.prod __var_d __var_e) *}
+;;
+
+(** First projection of a 5-uple (x, (_, (_, (_, _)))) *)
+let __tpl_firstprj5 =
+  internal ('a * 'b * 'c * 'd * 'e) -> 'a
+  external
+  | caml -> {* (fun _ -> assert false) *}  (* Never used for Ocaml code generation. *)
+  | coq -> {* (coq_builtins.__tpl_firstprj5 __var_a __var_b __var_c __var_d __var_e) *}
+  | dedukti -> {* __tpl_firstprj4 __var_a __var_b __var_c (dk_tuple.prod __var_d __var_e) *}
+;;
+
+(** Rightmost level-5 projection of any tuple (...,(x, (_, (_, (_, _))))) *)
+let __tpl_lastprj5 =
+  internal ('a * 'b * 'c * 'd * 'e * 'f) -> 'b
+  external
+  | caml -> {* (fun _ -> assert false) *}  (* Never used for Ocaml code generation. *)
+  | coq -> {* (coq_builtins.__tpl_lastprj5 __var_a __var_b __var_c __var_d __var_e __var_f) *}
+  | dedukti -> {* __tpl_lastprj4 __var_a __var_b __var_c __var_d (dk_tuple.prod __var_e __var_f) *}
+;;
+
+
+
+(* .......... SNIPED .......... *)
+
+type partiel ('a) =
+   | Failed
+   | Unfailed ('a)
+;;
+
+
+let is_failed (x) =
+  match x with
+  | Failed -> true
+  | Unfailed (_) -> false
+;;
+
+
+let non_failed (x) =
+  match x with
+  | Failed -> focalize_error ("partial function")
+  | Unfailed (a) -> a
+;;
+
+(* .......... SNIPED .......... *)
